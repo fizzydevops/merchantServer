@@ -48,6 +48,14 @@ func (conn *connection) getConnectionString() string {
 	return conn.ip + ":" + strconv.Itoa(conn.port)
 }
 
+func toBytes(msg string) []byte {
+	return []byte(msg)
+}
+
+func toString (msgBytes []byte) string {
+	return string(msgBytes)
+}
+
 func (conn *connection) Connect() error {
 	connection, err := net.Dial(conn.protocol, conn.ip + ":" + conn.getConnectionString())
 
@@ -62,7 +70,53 @@ func (conn *connection) Connect() error {
 		return err
 	}
 
+	log.Printf("Successfully created connection to : %s\n", conn.getConnectionString())
 	conn.connection = connection
 
 	return nil
+}
+
+func (conn *connection) SendMessage(msg string) (err error) {
+	msgBytes := toBytes(msg)
+
+	_, err = conn.connection.Write(msgBytes)
+
+	if err != nil {
+		log.Println(map[string]interface{}{
+			"status": "Error",
+			"message": "Failed to write to server.",
+			"function": "SendMessage",
+			"package": "client",
+			"error": err.Error(),
+		})
+		return
+	}
+
+	log.Printf("Successfully sent message : %s\n", msg)
+
+	return nil
+}
+
+
+func (conn *connection) ReadMessage() (response string, err error) {
+
+	var responseBytes []byte
+
+	_, err = conn.connection.Read(responseBytes)
+
+	if err != nil {
+		log.Println(map[string]interface{}{
+			"status": "Error",
+			"message": "Failed to read from server",
+			"function": "ReadMessage",
+			"package": "client",
+			"error": err.Error(),
+		})
+		return
+	}
+
+	response = toString(responseBytes)
+	log.Printf("Successfully read from server : %s\n", response)
+
+	return
 }
