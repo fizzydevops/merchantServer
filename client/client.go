@@ -15,7 +15,7 @@ var (
 
 func init() {
 	if host == "" {
-		host = "test"
+		host = "localhost"
 	}
 	if port == "" {
 		port = "5000"
@@ -25,40 +25,8 @@ func init() {
 type merchantClient struct {
 	message string
 	conn net.Conn
-}
-
-func NewMerchantClient() (*merchantClient, error) {
-	connPort, err := strconv.Atoi(port)
-
-	if err != nil {
-		log.Println(map[string]interface{}{
-			"status": "Error",
-			"message": "Failed to convert port(str) to int",
-			"package": "client",
-			"function": "NewClient",
-			"error": err.Error(),
-		})
-		return nil, err
-	}
-
-	// create a new connection struct
-	conn := NewConnection(host, connPort, protocol)
-
-	// Try's establishes connection to server
-	merchantConnection, err := conn.connect()
-
-	if err != nil {
-		log.Println(map[string]interface{}{
-			"status": "Error",
-			"message": "Failed to connect to merchant server",
-			"function": "NewClient",
-			"package": "client",
-			"err": err.Error(),
-		})
-		return nil, err
-	}
-
-	return &merchantClient{conn: merchantConnection}, nil
+	request []byte
+	response []byte
 }
 
 func (mc *merchantClient) SetMessage(msg string) {
@@ -69,19 +37,46 @@ func (mc *merchantClient) Message() string {
 	return mc.message
 }
 
-func (mc *merchantClient) SendMessage(msg string) error {
-	msgBytes := toBytes(msg)
+func (mc *merchantClient)SetMerchantResponse(response []byte) {
+	mc.response = response
+}
 
-	_, err := mc.conn.Write(msgBytes)
+func  (mc *merchantClient) Response() []byte {
+	return mc.response
+}
+
+func (mc *merchantClient) SetMerchantRequest(request []byte) {
+	mc.request = request
+}
+
+func (mc *merchantClient) Request() []byte {
+	return mc.request
+}
+
+func NewMerchantClient() (*merchantClient, error) {
+	connPort, err := strconv.Atoi(port)
 
 	if err != nil {
-		log.Println(map[string]interface{}{
-			"status": "Error",
-			"message": "Failed to write to server.",
-			"function": "SendMessage",
-			"package": "client",
-			"error": err.Error(),
-		})
+		return nil, err
+	}
+
+	// create a new connection struct
+	conn := NewConnection(host, connPort, protocol)
+
+	// Try's establishes connection to server
+	merchantConnection, err := conn.connect()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &merchantClient{conn: merchantConnection}, nil
+}
+
+func (mc *merchantClient) SendMessage(msg []byte) error {
+	_, err := mc.conn.Write(msg)
+
+	if err != nil {
 		return err
 	}
 
@@ -89,25 +84,14 @@ func (mc *merchantClient) SendMessage(msg string) error {
 
 	return nil
 }
-
-
 func (mc *merchantClient) ReadMessage() ([]byte, error) {
-
 	responseBytes := make([]byte, 1024)
+
 	_, err := mc.conn.Read(responseBytes)
 
 	if err != nil {
-		log.Println(map[string]interface{}{
-			"status": "Error",
-			"message": "Failed to read from server",
-			"function": "ReadMessage",
-			"package": "client",
-			"error": err.Error(),
-		})
 		return nil, err
 	}
-
-	log.Printf("Successfully read from server : %s\n", responseBytes)
 
 	return responseBytes, err
 }

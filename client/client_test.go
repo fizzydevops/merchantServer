@@ -2,7 +2,6 @@ package client_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/merchantServer/client"
 	"testing"
 )
@@ -14,8 +13,6 @@ func TestNewMerchantClient(t *testing.T) {
 		t.Error(err.Error())
 		t.FailNow()
 	}
-
-	fmt.Println("Successfully connected to server...")
 }
 
 func TestMerchantClient_SendMessage(t *testing.T) {
@@ -26,14 +23,19 @@ func TestMerchantClient_SendMessage(t *testing.T) {
 		t.FailNow()
 	}
 
-	err = c.SendMessage("Hello from the client")
+	data := map[string]interface{}{
+		"name": "Ryan Claude Fox",
+		"username": "fizzyFox101",
+	}
+
+	jsonBytes, err := json.Marshal(data)
+
+	err = c.SendMessage(jsonBytes)
 
 	if err != nil {
 		t.Error(err.Error())
 		t.FailNow()
 	}
-
-	fmt.Println("Successfully sent message to server...")
 }
 
 func TestMerchantClient_ReadMessage(t *testing.T) {
@@ -44,24 +46,32 @@ func TestMerchantClient_ReadMessage(t *testing.T) {
 		t.FailNow()
 	}
 
-	err = c.SendMessage("Hello from the client")
+	data := map[string]interface{}{
+		"name": "Ryan Claude Fox",
+		"username": "fizzyFox101",
+	}
+
+	jsonBytes, err := json.Marshal(data)
 
 	if err != nil {
 		t.Error(err.Error())
 		t.FailNow()
 	}
 
-	fmt.Println("Successfully sent message to server...")
+	err = c.SendMessage(jsonBytes)
 
+	if err != nil {
+		t.Error(err.Error())
+		t.FailNow()
+	}
+
+	// Read response from server
 	responseBytes, err := c.ReadMessage()
 
-
 	if err != nil {
 		t.Error(err.Error())
 		t.FailNow()
 	}
-
-	fmt.Println("Successfully got a response back")
 
 	var response map[string]interface{}
 
@@ -77,7 +87,6 @@ func TestMerchantClient_ReadMessage(t *testing.T) {
 		t.FailNow()
 	}
 
-	fmt.Println("Sent a successful request.")
 }
 
 
