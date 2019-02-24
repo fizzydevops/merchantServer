@@ -1,5 +1,7 @@
 package main
 
-func main() {
+import "github.com/merchantServer/server"
 
+func main() {
+	server.Start()
 }

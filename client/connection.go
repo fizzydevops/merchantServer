@@ -44,12 +44,8 @@ func (conn *connection) Protocol() string {
 	return conn.protocol
 }
 
-func (conn *connection) getConnectionString() string {
-	return conn.ip + ":" + strconv.Itoa(conn.port)
-}
-
 func (conn *connection) connect() (net.Conn, error) {
-	connection, err := net.Dial(conn.protocol, conn.getConnectionString())
+	connection, err := net.Dial(conn.protocol, net.JoinHostPort(conn.IP(), strconv.Itoa(conn.Port())))
 
 	if err != nil {
 		log.Println(map[string]interface{}{
@@ -62,7 +58,7 @@ func (conn *connection) connect() (net.Conn, error) {
 		return nil, err
 	}
 
-	log.Printf("Successfully created connection to : %s\n", conn.getConnectionString())
+	log.Printf("Successfully created connection..")
 
 
 	return connection, nil

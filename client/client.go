@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	host = os.Getenv("merchantHost")
-	port = os.Getenv("merchantPort")
+	host = os.Getenv("MERCHANTHOST")
+	port = os.Getenv("MERCHANTPORT")
 	protocol = "tcp"
 )
 
@@ -60,7 +60,7 @@ func (mc *merchantClient) Message() string {
 	return mc.message
 }
 
-func (mc *merchantClient) SendMessage(conn connection, msg string) (err error) {
+func (mc *merchantClient) SendMessage(msg string) (err error) {
 	msgBytes := toBytes(msg)
 
 	_, err = mc.conn.Write(msgBytes)
@@ -82,7 +82,7 @@ func (mc *merchantClient) SendMessage(conn connection, msg string) (err error) {
 }
 
 
-func (mc *merchantClient) ReadMessage(conn connection) (response string, err error) {
+func (mc *merchantClient) ReadMessage() (response string, err error) {
 
 	var responseBytes []byte
 
