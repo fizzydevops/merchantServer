@@ -13,6 +13,15 @@ var (
 	protocol = "tcp"
 )
 
+func init() {
+	if host == "" {
+		host = "test"
+	}
+	if port == "" {
+		port = "5000"
+	}
+}
+
 type merchantClient struct {
 	message string
 	conn net.Conn
@@ -60,10 +69,10 @@ func (mc *merchantClient) Message() string {
 	return mc.message
 }
 
-func (mc *merchantClient) SendMessage(msg string) (err error) {
+func (mc *merchantClient) SendMessage(msg string) error {
 	msgBytes := toBytes(msg)
 
-	_, err = mc.conn.Write(msgBytes)
+	_, err := mc.conn.Write(msgBytes)
 
 	if err != nil {
 		log.Println(map[string]interface{}{
@@ -73,7 +82,7 @@ func (mc *merchantClient) SendMessage(msg string) (err error) {
 			"package": "client",
 			"error": err.Error(),
 		})
-		return
+		return err
 	}
 
 	log.Printf("Successfully sent message : %s\n", msg)
@@ -82,11 +91,10 @@ func (mc *merchantClient) SendMessage(msg string) (err error) {
 }
 
 
-func (mc *merchantClient) ReadMessage() (response string, err error) {
+func (mc *merchantClient) ReadMessage() ([]byte, error) {
 
-	var responseBytes []byte
-
-	_, err = mc.conn.Read(responseBytes)
+	responseBytes := make([]byte, 1024)
+	_, err := mc.conn.Read(responseBytes)
 
 	if err != nil {
 		log.Println(map[string]interface{}{
@@ -96,11 +104,10 @@ func (mc *merchantClient) ReadMessage() (response string, err error) {
 			"package": "client",
 			"error": err.Error(),
 		})
-		return
+		return nil, err
 	}
 
-	response = toString(responseBytes)
-	log.Printf("Successfully read from server : %s\n", response)
+	log.Printf("Successfully read from server : %s\n", responseBytes)
 
-	return
+	return responseBytes, err
 }
