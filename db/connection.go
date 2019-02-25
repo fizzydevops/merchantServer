@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ssm"
 	"log"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type db struct {
@@ -17,26 +18,14 @@ func NewConnection(database string) *db {
 	credentials, err := getDatabaseCredentials()
 
 	if err !=  nil {
-		panic(map[string]string{
-			"status": "Error",
-			"message": "Failed to receive database credentials",
-			"function": "connect",
-			"package": "db",
-			"error": err.Error(),
-		})
+		panic(err.Error())
 	}
 
 	// Try to connect to database with current credentials.
 	conn, err := sql.Open("mysql",fmt.Sprintf("%s:%s@/%s", credentials["/db/merchantdb/sql/endpoint"], credentials["db/merchantdb/sql/password"], database))
 
 	if err != nil {
-		panic(map[string]string{
-			"status": "Error",
-			"message": "Failed to receive database credentials",
-			"function": "connect",
-			"package": "db",
-			"error": err.Error(),
-		})
+		panic(err.Error())
 	}
 
 	return &db{conn:conn}
@@ -44,7 +33,7 @@ func NewConnection(database string) *db {
 
 // getDatabaseCredentials retrieves the endpoint and password from aws parameter store.
 func getDatabaseCredentials() (map[string]string, error) {
-	session := session.Must(session.NewSession())
+	session := session.Must(session.NewSessionWithOptions(session.Options{Profile: "merchantdb"}))
 	svc := ssm.New(session)
 
 	query := &ssm.GetParametersByPathInput{
@@ -59,14 +48,11 @@ func getDatabaseCredentials() (map[string]string, error) {
 		return nil, err
 	}
 
-
 	var results = map[string]string{}
 
 	if len(resp.Parameters) > 0 {
 		for _, value := range resp.Parameters {
-			if name, ok := results[*value.Name]; name != "" && ok {
-				results[*value.Name] = *value.Value
-			}
+			results[*value.Name] = *value.Value
 		}
 	} else {
 		// Throw some error because nothing came back.
