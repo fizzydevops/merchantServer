@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	host = os.Getenv("MERCHANTHOST")
-	port = os.Getenv("MERCHANTPORT")
+	host     = os.Getenv("MERCHANTHOST")
+	port     = os.Getenv("MERCHANTPORT")
 	protocol = "tcp"
 )
 
@@ -23,9 +23,9 @@ func init() {
 }
 
 type merchantClient struct {
-	message string
-	conn net.Conn
-	request []byte
+	message  string
+	conn     net.Conn
+	request  []byte
 	response []byte
 }
 
@@ -37,11 +37,11 @@ func (mc *merchantClient) Message() string {
 	return mc.message
 }
 
-func (mc *merchantClient)SetMerchantResponse(response []byte) {
+func (mc *merchantClient) SetMerchantResponse(response []byte) {
 	mc.response = response
 }
 
-func  (mc *merchantClient) Response() []byte {
+func (mc *merchantClient) Response() []byte {
 	return mc.response
 }
 

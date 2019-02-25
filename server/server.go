@@ -10,14 +10,14 @@ import (
 
 const (
 	protocol = "tcp"
-	ip = "0.0.0.0"
-	port = "5000"
+	ip       = "0.0.0.0"
+	port     = "5000"
 )
 
 var (
-	conn net.Conn
-	reader *bufio.Reader
-	writer *bufio.Writer
+	conn     net.Conn
+	reader   *bufio.Reader
+	writer   *bufio.Writer
 	response map[string]interface{}
 	listener net.Listener
 )
@@ -25,7 +25,7 @@ var (
 func Start() {
 	fmt.Println("Starting merchantServer server...")
 
-	listener, err := net.Listen(protocol, ip + ":" + port)
+	listener, err := net.Listen(protocol, ip+":"+port)
 	defer listener.Close()
 
 	// If we fail to start server this is fatal.
@@ -58,7 +58,7 @@ func Start() {
 
 		var data map[string]interface{}
 
-		err  = json.Unmarshal(requestBytes[:n], &data)
+		err = json.Unmarshal(requestBytes[:n], &data)
 
 		if err != nil {
 			logMerchantError("Failed to decode JSON", "Start", err.Error())
@@ -74,13 +74,12 @@ func Start() {
 
 } //end of Start method.
 
-
 func logMerchantError(message, function, err string) {
 	log.Println(map[string]string{
-		"status": "Error",
-		"message": message,
+		"status":   "Error",
+		"message":  message,
 		"function": function,
-		"package": "server",
-		"error": err,
+		"package":  "server",
+		"error":    err,
 	})
 }

@@ -24,7 +24,7 @@ func TestMerchantClient_SendMessage(t *testing.T) {
 	}
 
 	data := map[string]interface{}{
-		"name": "Ryan Claude Fox",
+		"name":     "Ryan Claude Fox",
 		"username": "fizzyFox101",
 	}
 
@@ -47,7 +47,7 @@ func TestMerchantClient_ReadMessage(t *testing.T) {
 	}
 
 	data := map[string]interface{}{
-		"name": "Ryan Claude Fox",
+		"name":     "Ryan Claude Fox",
 		"username": "fizzyFox101",
 	}
 
@@ -88,5 +88,3 @@ func TestMerchantClient_ReadMessage(t *testing.T) {
 	}
 
 }
-
-

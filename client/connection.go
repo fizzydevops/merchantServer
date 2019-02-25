@@ -7,21 +7,21 @@ import (
 )
 
 type connection struct {
-	ip string
-	port int
+	ip       string
+	port     int
 	protocol string
 }
 
 func NewConnection(ip string, port int, protocol string) *connection {
 	return &connection{
-		ip: ip,
-		port: port,
+		ip:       ip,
+		port:     port,
 		protocol: protocol,
 	}
 }
 
 func (conn *connection) SetIP(ip string) {
-	conn.ip  = ip
+	conn.ip = ip
 }
 
 func (conn *connection) IP() string {
@@ -49,17 +49,16 @@ func (conn *connection) connect() (net.Conn, error) {
 
 	if err != nil {
 		log.Println(map[string]interface{}{
-			"status": "Error",
-			"message": "Failed to establish server connection",
+			"status":   "Error",
+			"message":  "Failed to establish server connection",
 			"function": "Connect",
-			"package": "client",
-			"error": err.Error(),
+			"package":  "client",
+			"error":    err.Error(),
 		})
 		return nil, err
 	}
 
 	log.Printf("Successfully created connection..")
-
 
 	return connection, nil
 }
