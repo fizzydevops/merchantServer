@@ -10,10 +10,10 @@ import (
 )
 
 type db struct {
-
+	conn *sql.DB
 }
 
-func NewConnection(database string) {
+func NewConnection(database string) *db {
 	credentials, err := getDatabaseCredentials()
 
 	if err !=  nil {
@@ -26,8 +26,8 @@ func NewConnection(database string) {
 		})
 	}
 
-	// Try to connect to databse with current credentials.
-	db, err := sql.Open("mysql",fmt.Sprintf("%s:%s@/%s",credentials["/db/merchantdb/sql/endpoint"],credentials["db/merchantdb/sql/password"],database))
+	// Try to connect to database with current credentials.
+	conn, err := sql.Open("mysql",fmt.Sprintf("%s:%s@/%s", credentials["/db/merchantdb/sql/endpoint"], credentials["db/merchantdb/sql/password"], database))
 
 	if err != nil {
 		panic(map[string]string{
@@ -38,10 +38,12 @@ func NewConnection(database string) {
 			"error": err.Error(),
 		})
 	}
+
+	return &db{conn:conn}
 }
 
 // getDatabaseCredentials retrieves the endpoint and password from aws parameter store.
-func getDatabaseCredentials() (map[string]string, error) {\
+func getDatabaseCredentials() (map[string]string, error) {
 	session := session.Must(session.NewSession())
 	svc := ssm.New(session)
 
@@ -58,11 +60,13 @@ func getDatabaseCredentials() (map[string]string, error) {\
 	}
 
 
-	var results map[string]string{}
+	var results = map[string]string{}
 
 	if len(resp.Parameters) > 0 {
 		for _, value := range resp.Parameters {
-			results[*value.Name] = *value.Value
+			if name, ok := results[*value.Name]; name != "" && ok {
+				results[*value.Name] = *value.Value
+			}
 		}
 	} else {
 		// Throw some error because nothing came back.
