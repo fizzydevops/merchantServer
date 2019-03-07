@@ -3,6 +3,8 @@ package server
 import (
 	"encoding/json"
 	"github.com/auth/merchant"
+	"github.com/dgrijalva/jwt-go"
+	"time"
 )
 
 func merchantHandler(data map[string]interface{}) {
@@ -51,5 +53,7 @@ func merchantHandler(data map[string]interface{}) {
 	}
 
 	// If authenticated we are going to now get a token for the account.
-
+	// makes a token valid for 60 minutes.
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{Issuer:"authServer", ExpiresAt:time.Now().UTC().Add(time.Second*60).Unix()})
+	signedStr, err := token.SignedString("test")
 }

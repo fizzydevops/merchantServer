@@ -40,5 +40,5 @@ func (m *merchant) setToken(token string) {
 // Authenticate connect to the database to authenticate merchant credentials
 func Authenticate(username string, password []byte) (bool, error) {
 
-	return true
+	return true, nil
 }
