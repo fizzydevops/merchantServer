@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"log"
 	"net"
 	"os"
@@ -23,34 +24,9 @@ func init() {
 }
 
 type merchantClient struct {
-	message  string
 	conn     net.Conn
-	request  []byte
-	response []byte
-}
-
-func (mc *merchantClient) SetMessage(msg string) {
-	mc.message = msg
-}
-
-func (mc *merchantClient) Message() string {
-	return mc.message
-}
-
-func (mc *merchantClient) SetMerchantResponse(response []byte) {
-	mc.response = response
-}
-
-func (mc *merchantClient) Response() []byte {
-	return mc.response
-}
-
-func (mc *merchantClient) SetMerchantRequest(request []byte) {
-	mc.request = request
-}
-
-func (mc *merchantClient) Request() []byte {
-	return mc.request
+	request  map[string]interface{}
+	response map[string]interface{}
 }
 
 func NewMerchantClient() (*merchantClient, error) {
@@ -73,18 +49,42 @@ func NewMerchantClient() (*merchantClient, error) {
 	return &merchantClient{conn: merchantConnection}, nil
 }
 
-func (mc *merchantClient) SendMessage(msg []byte) error {
-	_, err := mc.conn.Write(msg)
+func (mc *merchantClient) SetMerchantResponse(response map[string]interface{}) {
+	mc.response = response
+}
+
+func (mc *merchantClient) Response() map[string]interface{} {
+	return mc.response
+}
+
+func (mc *merchantClient) SetMerchantRequest(request map[string]interface{}) {
+	mc.request = request
+}
+
+func (mc *merchantClient) Request() map[string]interface{} {
+	return mc.request
+}
+
+func (mc *merchantClient) Send(data map[string]interface{}) error {
+
+	requestBytes, err := json.Marshal(data)
 
 	if err != nil {
 		return err
 	}
 
-	log.Printf("Successfully sent message : %s\n", msg)
+	_, err = mc.conn.Write(requestBytes)
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Successfully sent message : %s\n", requestBytes)
 
 	return nil
 }
-func (mc *merchantClient) ReadMessage() ([]byte, error) {
+
+func (mc *merchantClient) Read() ([]byte, error) {
 	responseBytes := make([]byte, 1024)
 
 	_, err := mc.conn.Read(responseBytes)

@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/json"
 	"github.com/Auth/token"
 	"github.com/auth/merchant"
 )
@@ -28,29 +27,19 @@ func merchantHandler(data map[string]interface{}) {
 
 	if errMsgs != nil {
 		err := InvalidAuthRequest{missingItems: errMsgs}.Error()
-		logMerchantError("Failed to authenticate merchant credentials.", "merchantHandler", err)
-		jsonBytes, _ := json.Marshal(map[string]string{
-			"status":  "error",
-			"message": "Insufficient data sent in request.",
-			"error":   err,
-		})
-		writer.Write(jsonBytes)
-		writer.Flush()
+		logServerError("Failed to authenticate merchant credentials.", "merchantHandler", err)
+		writeResponse(map[string]interface{}{"status":  "error", "message": "Insufficient data sent in request.", "error":  err})
 		return
 	}
 
 	m := merchant.New(username, password)
-	authenticated, err := m.Authenticate(username, password)
+	authenticated, err := m.Authenticate()
 
 	if err != nil {
-		logMerchantError("Failed to authenticate merchant credentials.", "merchantHandler", err.Error())
+		logServerError("Failed to authenticate merchant credentials.", "merchantHandler", err.Error())
+		writeResponse(map[string]interface{}{"status": "error", "message": "Failed to authenticate merchant credentials."})
 	} else if !authenticated {
-		jsonBytes, _ := json.Marshal(map[string]string{
-			"status":  "Error",
-			"message": "Authentication Failure. Invalid credentials.",
-		})
-		writer.Write(jsonBytes)
-		writer.Flush()
+		writeResponse(map[string]interface{}{"status": "error", "message": "Authentication Failure. Invalid credentials."})
 		return
 	}
 
@@ -60,16 +49,13 @@ func merchantHandler(data map[string]interface{}) {
 	tokenStr, err := t.GenerateToken()
 
 	if err != nil {
-		logMerchantError("Failed to generate a token", "merchantHandler", err.Error())
+		logServerError("Failed to generate a token", "merchantHandler", err.Error())
 	}
 
-	jsonBytes, _ := json.Marshal(map[string]string{
-		"status":   "Success",
+	writeResponse(map[string]interface{}{
+		"status":   "success",
 		"message":  "Successfully authenticated.",
 		"username": username,
 		"token":    tokenStr,
 	})
-
-	writer.Write(jsonBytes)
-	writer.Flush()
 }

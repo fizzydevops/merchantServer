@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 )
 
 const (
@@ -30,7 +31,7 @@ func Start() {
 
 	// If we fail to start server this is fatal.
 	if err != nil {
-		logMerchantError("Failed to start merchant server.", "Start", err.Error())
+		logServerError("Failed to start merchant server.", "Start", err.Error())
 		panic(err.Error())
 		return
 	}
@@ -49,7 +50,7 @@ func Start() {
 		fmt.Println("Accepted connection from : ", conn.RemoteAddr())
 
 		if err != nil {
-			logMerchantError("Failed to accept incoming connection", "Start", err.Error())
+			logServerError("Failed to accept incoming connection", "Start", err.Error())
 		}
 
 		writer = bufio.NewWriter(conn)
@@ -61,10 +62,8 @@ func Start() {
 		err = json.Unmarshal(requestBytes[:n], &data)
 
 		if err != nil {
-			logMerchantError("Failed to decode JSON", "Start", err.Error())
-			jsonBytes, _ := json.Marshal(response)
-			writer.Write(jsonBytes)
-			writer.Flush()
+			logServerError("Failed to decode JSON", "Start", err.Error())
+			writeResponse(map[string]interface{}{"status" : "error", "message": "Failed to decode JSON"})
 			continue
 		}
 
@@ -74,7 +73,9 @@ func Start() {
 
 } //end of Start method.
 
-func logMerchantError(message, function, err string) {
+
+// logMerchantError is a utility function for logging errors to the server.
+func logServerError(message, function, err string) {
 	log.Println(map[string]string{
 		"status":   "Error",
 		"message":  message,
@@ -82,4 +83,28 @@ func logMerchantError(message, function, err string) {
 		"package":  "server",
 		"error":    err,
 	})
+}
+
+// writeResponse is a utility function for writing back a response to the client.
+func writeResponse(data map[string]interface{}) {
+	var errMsgs []string
+	response, err := json.Marshal(data)
+
+	if err != nil {
+		errMsgs = append(errMsgs, err.Error())
+	}
+
+	_, err = writer.Write(response)
+
+	if err != nil {
+		errMsgs = append(errMsgs, err.Error())
+	}
+
+	if err = writer.Flush(); err != nil {
+		errMsgs = append(errMsgs, err.Error())
+	}
+
+	if len(errMsgs) > 0 {
+		logServerError("Failed to write reponse data.", "writeResponse", strings.Join(errMsgs,", "))
+	}
 }

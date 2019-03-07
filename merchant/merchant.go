@@ -44,7 +44,7 @@ func (m *merchant) setToken(token string) {
 }
 
 // Authenticate connect to the database to authenticate merchant credentials
-func (m *merchant) Authenticate(username string, password []byte) (bool, error) {
+func (m *merchant) Authenticate() (bool, error) {
 	conn, err := db.NewConnection("merchantdb")
 
 	if err != nil {
@@ -59,7 +59,7 @@ func (m *merchant) Authenticate(username string, password []byte) (bool, error) 
 		return false, err
 	}
 
-	results, err := conn.QueryAndScan(`SELECT password FROM login WHERE username = ? `, []interface{}{username})
+	results, err := conn.QueryAndScan(`SELECT password FROM login WHERE username = ? `, []interface{}{m.username})
 
 	if err != nil {
 		log.Println(map[string]string{
@@ -72,9 +72,9 @@ func (m *merchant) Authenticate(username string, password []byte) (bool, error) 
 		})
 	}
 
-	err = bcrypt.CompareHashAndPassword(results["password"].([]byte), password)
+	err = bcrypt.CompareHashAndPassword(results["password"].([]byte), m.password)
 
-	// If err is returned from bcrypt it means passwords did not match.
+	// If err is returned from bcrypt.CompareHashAndPassword it means passwords did not match.
 	if err != nil {
 		return false, nil
 	}
