@@ -81,3 +81,32 @@ func (m *merchant) Authenticate() (bool, error) {
 
 	return true, nil
 }
+
+func (m *merchant) InsertLogin(username, password string) error {
+	conn, err := db.NewConnection("merchantdb")
+
+	if err != nil {
+		log.Println(map[string]string{
+			"status": "error",
+			"message": "Failed to connect to database.",
+			"database": "merchantdb",
+			"function": "InsertLogin",
+			"package": "merchant",
+			"error": err.Error(),
+		})
+	}
+
+	_, err = conn.PrepareAndExecute(`INSERT INTO login(username, password) VALUES(?, ?)`, []interface{}{username, password})
+
+	if err != nil {
+		log.Println(map[string]string{
+			"status": "error",
+			"message": "Failed to insert new log in.",
+			"package": "merchant",
+			"function": "InsertLogin",
+			"error": err.Error(),
+		})
+	}
+
+	return err
+}

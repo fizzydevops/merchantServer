@@ -2,7 +2,6 @@ package client
 
 import (
 	"encoding/json"
-	"log"
 	"net"
 	"os"
 	"strconv"
@@ -29,7 +28,7 @@ type merchantClient struct {
 	response map[string]interface{}
 }
 
-func NewMerchantClient() (*merchantClient, error) {
+func New() (*merchantClient, error) {
 	connPort, err := strconv.Atoi(port)
 
 	if err != nil {
@@ -79,8 +78,6 @@ func (mc *merchantClient) Send(data map[string]interface{}) error {
 		return err
 	}
 
-	log.Printf("Successfully sent message : %s\n", requestBytes)
-
 	return nil
 }
 
@@ -92,6 +89,7 @@ func (mc *merchantClient) Read() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 
 	return responseBytes, err
 }

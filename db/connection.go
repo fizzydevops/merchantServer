@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ssm"
 	_ "github.com/go-sql-driver/mysql"
+	"log"
 )
 
 type db struct {
@@ -120,4 +121,33 @@ func (db *db) QueryAndScan(query string, values []interface{}) (map[string]inter
 	}
 
 	return results, err
+}
+
+func BuildParamsString(length int) string {
+
+	paramStr := "("
+
+	for i := 0; i < length; i++ {
+		if i + 1 == length {
+			paramStr += "? )"
+		} else {
+			paramStr += "?, "
+		}
+	}
+
+	return paramStr
+}
+
+func (db *db) Close() {
+	err := db.conn.Close()
+
+	if  err != nil {
+		log.Println(map[string]interface{}{
+			"status": "error",
+			"message": "Failed to close database connection.",
+			"package": "db",
+			"function": "Close",
+			"error": err.Error(),
+		})
+	}
 }
