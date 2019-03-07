@@ -2,7 +2,7 @@ package client_test
 
 import (
 	"encoding/json"
-	"github.com/merchantServer/client"
+	"github.com/auth/client"
 	"testing"
 )
 

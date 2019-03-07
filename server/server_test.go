@@ -1,7 +1,7 @@
 package server_test
 
 import (
-	"github.com/merchantServer/server"
+	"github.com/auth/server"
 	"testing"
 )
 
