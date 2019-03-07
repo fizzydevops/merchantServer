@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/auth/merchant"
 )
 
 func merchantHandler(data map[string]interface{}) {
@@ -26,7 +27,7 @@ func merchantHandler(data map[string]interface{}) {
 
 	if errMsgs != nil {
 		err := InvalidAuthRequest{missingItems:errMsgs}.Error()
-		logMerchantError("Failed to authenticate credentials.", "merchantHandler", err)
+		logMerchantError("Failed to authenticate merchant credentials.", "merchantHandler", err)
 		jsonBytes, _:= json.Marshal(map[string]string{
 			"status": "error",
 			"message": "Insufficient data sent in request.",
@@ -36,6 +37,19 @@ func merchantHandler(data map[string]interface{}) {
 		writer.Flush()
 	}
 
+	authenticated, err := merchant.Authenticate(username, password)
 
+	if err != nil {
+		logMerchantError("Failed to authenticate merchant credentials.", "merchantHandler", err.Error())
+	} else if !authenticated {
+		jsonBytes, _ := json.Marshal(map[string]string{
+			"status": "Error",
+			"message": "Authentication Failure. Invalid credentials.",
+		})
+		writer.Write(jsonBytes)
+		writer.Flush()
+	}
+
+	// If authenticated we are going to now get a token for the account.
 
 }
