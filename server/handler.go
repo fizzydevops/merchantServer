@@ -2,9 +2,8 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/Auth/token"
 	"github.com/auth/merchant"
-	"github.com/dgrijalva/jwt-go"
-	"time"
 )
 
 func merchantHandler(data map[string]interface{}) {
@@ -28,32 +27,49 @@ func merchantHandler(data map[string]interface{}) {
 	}
 
 	if errMsgs != nil {
-		err := InvalidAuthRequest{missingItems:errMsgs}.Error()
+		err := InvalidAuthRequest{missingItems: errMsgs}.Error()
 		logMerchantError("Failed to authenticate merchant credentials.", "merchantHandler", err)
-		jsonBytes, _:= json.Marshal(map[string]string{
-			"status": "error",
+		jsonBytes, _ := json.Marshal(map[string]string{
+			"status":  "error",
 			"message": "Insufficient data sent in request.",
-			"error": err,
+			"error":   err,
 		})
 		writer.Write(jsonBytes)
 		writer.Flush()
+		return
 	}
 
-	authenticated, err := merchant.Authenticate(username, password)
+	m := merchant.New(username, password)
+	authenticated, err := m.Authenticate(username, password)
 
 	if err != nil {
 		logMerchantError("Failed to authenticate merchant credentials.", "merchantHandler", err.Error())
 	} else if !authenticated {
 		jsonBytes, _ := json.Marshal(map[string]string{
-			"status": "Error",
+			"status":  "Error",
 			"message": "Authentication Failure. Invalid credentials.",
 		})
 		writer.Write(jsonBytes)
 		writer.Flush()
+		return
 	}
 
 	// If authenticated we are going to now get a token for the account.
 	// makes a token valid for 60 minutes.
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{Issuer:"authServer", ExpiresAt:time.Now().UTC().Add(time.Second*60).Unix()})
-	signedStr, err := token.SignedString("test")
+	t := token.New(username)
+	tokenStr, err := t.GenerateToken()
+
+	if err != nil {
+		logMerchantError("Failed to generate a token", "merchantHandler", err.Error())
+	}
+
+	jsonBytes, _ := json.Marshal(map[string]string{
+		"status":   "Success",
+		"message":  "Successfully authenticated.",
+		"username": username,
+		"token":    tokenStr,
+	})
+
+	writer.Write(jsonBytes)
+	writer.Flush()
 }
