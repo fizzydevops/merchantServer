@@ -25,7 +25,7 @@ func NewConnection(database string) (*db, error) {
 	}
 
 	// Try to connect to database with current credentials.
-	conn, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp([%s]:3306)/%s", credentials["/db/merchantdb/sql/username"],credentials["/db/merchantdb/sql/password"], credentials["/db/merchantdb/sql/endpoint"], database))
+	conn, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp([%s]:3306)/%s", credentials["/db/merchantdb/sql/username"], credentials["/db/merchantdb/sql/password"], credentials["/db/merchantdb/sql/endpoint"], database))
 
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func NewConnection(database string) (*db, error) {
 // getDatabaseCredentials retrieves the endpoint and password from aws parameter store.
 func getDatabaseCredentials() (map[string]string, error) {
 	session, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1"),
+		Region:      aws.String("us-east-1"),
 		Credentials: credentials.NewSharedCredentials("", "default"),
 	})
 
@@ -136,7 +136,7 @@ func BuildParamsString(length int) string {
 	paramStr := "("
 
 	for i := 0; i < length; i++ {
-		if i + 1 == length {
+		if i+1 == length {
 			paramStr += "? )"
 		} else {
 			paramStr += "?, "
@@ -149,13 +149,13 @@ func BuildParamsString(length int) string {
 func (db *db) Close() {
 	err := db.conn.Close()
 
-	if  err != nil {
+	if err != nil {
 		log.Println(map[string]interface{}{
-			"status": "error",
-			"message": "Failed to close database connection.",
-			"package": "db",
+			"status":   "error",
+			"message":  "Failed to close database connection.",
+			"package":  "db",
 			"function": "Close",
-			"error": err.Error(),
+			"error":    err.Error(),
 		})
 	}
 }

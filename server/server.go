@@ -16,8 +16,8 @@ const (
 )
 
 var (
-	reader   *bufio.Reader
-	writer   *bufio.Writer
+	reader *bufio.Reader
+	writer *bufio.Writer
 )
 
 func Start() {
@@ -60,7 +60,7 @@ func Start() {
 
 		if err != nil {
 			logServerError("Failed to decode JSON", "Start", err.Error())
-			writeResponse(map[string]interface{}{"status" : "error", "message": "Failed to decode JSON"})
+			writeResponse(map[string]interface{}{"status": "error", "message": "Failed to decode JSON"})
 			continue
 		}
 
@@ -69,7 +69,6 @@ func Start() {
 	} // End of infinite for loop
 
 } //end of Start method.
-
 
 // logMerchantError is a utility function for logging errors to the server.
 func logServerError(message, function, err string) {
@@ -102,6 +101,6 @@ func writeResponse(data map[string]interface{}) {
 	}
 
 	if len(errMsgs) > 0 {
-		logServerError("Failed to write reponse data.", "writeResponse", strings.Join(errMsgs,", "))
+		logServerError("Failed to write reponse data.", "writeResponse", strings.Join(errMsgs, ", "))
 	}
 }

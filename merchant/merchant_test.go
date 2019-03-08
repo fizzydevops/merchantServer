@@ -8,7 +8,7 @@ import (
 
 func TestMerchant_InsertLogin(t *testing.T) {
 	username := "test"
-	password, err := bcrypt.GenerateFromPassword([]byte("testing123"),bcrypt.MinCost)
+	password, err := bcrypt.GenerateFromPassword([]byte("testing123"), bcrypt.MinCost)
 
 	if err != nil {
 		t.Error(err.Error())
@@ -23,7 +23,6 @@ func TestMerchant_InsertLogin(t *testing.T) {
 		t.FailNow()
 	}
 }
-
 
 func TestMerchant_Authenticate(t *testing.T) {
 	username := "test"

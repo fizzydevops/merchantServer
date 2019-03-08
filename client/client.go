@@ -90,6 +90,5 @@ func (mc *merchantClient) Read() ([]byte, error) {
 		return nil, err
 	}
 
-
 	return responseBytes[:len], err
 }

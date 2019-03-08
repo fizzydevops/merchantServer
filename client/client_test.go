@@ -26,7 +26,7 @@ func TestMerchantClient_SendMessage(t *testing.T) {
 	}
 
 	username := "rfoxinc"
-	password, err := bcrypt.GenerateFromPassword([]byte("password123"),bcrypt.MinCost)
+	password, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.MinCost)
 
 	err = c.Send(map[string]interface{}{
 		"username": username,

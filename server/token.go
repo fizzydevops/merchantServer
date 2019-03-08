@@ -16,7 +16,7 @@ func GenerateToken(identifier string) (string, error) {
 }
 
 func ValidateToken(tknStr, identifier string) (bool, error) {
-	tkn, err := jwt.ParseWithClaims(tknStr, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error){
+	tkn, err := jwt.ParseWithClaims(tknStr, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(identifier), nil
 	})
 

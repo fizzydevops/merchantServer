@@ -93,12 +93,12 @@ func (m *merchant) InsertLogin() error {
 
 	if err != nil {
 		log.Println(map[string]string{
-			"status": "error",
-			"message": "Failed to connect to database.",
+			"status":   "error",
+			"message":  "Failed to connect to database.",
 			"database": "merchantdb",
 			"function": "InsertLogin",
-			"package": "merchant",
-			"error": err.Error(),
+			"package":  "merchant",
+			"error":    err.Error(),
 		})
 	}
 
@@ -106,11 +106,11 @@ func (m *merchant) InsertLogin() error {
 
 	if err != nil {
 		log.Println(map[string]string{
-			"status": "error",
-			"message": "Failed to insert new log in.",
-			"package": "merchant",
+			"status":   "error",
+			"message":  "Failed to insert new log in.",
+			"package":  "merchant",
 			"function": "InsertLogin",
-			"error": err.Error(),
+			"error":    err.Error(),
 		})
 	}
 
