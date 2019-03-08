@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ssm"
 	_ "github.com/go-sql-driver/mysql"
@@ -20,11 +21,11 @@ func NewConnection(database string) (*db, error) {
 	credentials, err := getDatabaseCredentials()
 
 	if err != nil {
-		panic(err.Error())
+		return nil, err
 	}
 
 	// Try to connect to database with current credentials.
-	conn, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s", credentials["/db/merchantdb/sql/endpoint"], credentials["/db/merchantdb/sql/password"], database))
+	conn, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp([%s]:3306)/%s", credentials["/db/merchantdb/sql/username"],credentials["/db/merchantdb/sql/password"], credentials["/db/merchantdb/sql/endpoint"], database))
 
 	if err != nil {
 		return nil, err
@@ -42,13 +43,20 @@ func NewConnection(database string) (*db, error) {
 
 // getDatabaseCredentials retrieves the endpoint and password from aws parameter store.
 func getDatabaseCredentials() (map[string]string, error) {
-	session := session.Must(session.NewSessionWithOptions(session.Options{Profile: "merchantdb"}))
+	session, err := session.NewSession(&aws.Config{
+		Region: aws.String("us-east-1"),
+		Credentials: credentials.NewSharedCredentials("", "default"),
+	})
+
+	if err != nil {
+		return nil, err
+	}
 	svc := ssm.New(session)
 
 	query := &ssm.GetParametersByPathInput{
-		MaxResults:     aws.Int64(2),
+		MaxResults:     aws.Int64(3),
 		Path:           aws.String("/db/merchantdb/sql"),
-		WithDecryption: aws.Bool(true),
+		WithDecryption: aws.Bool(false), //Don't feel like spending money on kms
 	}
 
 	resp, err := svc.GetParametersByPath(query)

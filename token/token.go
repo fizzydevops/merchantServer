@@ -2,6 +2,7 @@ package token
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -53,11 +54,11 @@ func (t *token) SetClaims(c *claims) {
 
 func (t *token) GenerateToken() (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, t.claims)
-	tokenStr, err := token.SignedString([]byte("webAuth"))
+	tokenStr, err := token.SignedString([]byte(uuid.New().String()))
 	return tokenStr, err
 }
 
-func (t *token) validateToken(tknStr string) (bool, error) {
+func (t *token) ValidateToken(tknStr string) (bool, error) {
 	tkn, err := jwt.ParseWithClaims(tknStr, &claims{}, func(t *jwt.Token) (interface{}, error){
 		return []byte("webAuth"), nil
 	})

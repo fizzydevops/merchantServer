@@ -1,6 +1,7 @@
 package merchant
 
 import (
+	"errors"
 	"github.com/Auth/db"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -72,6 +73,11 @@ func (m *merchant) Authenticate() (bool, error) {
 		})
 	}
 
+	if len(results) == 0 {
+		err = errors.New("User not found.")
+		return false, err
+	}
+
 	err = bcrypt.CompareHashAndPassword(results["password"].([]byte), m.password)
 
 	// If err is returned from bcrypt.CompareHashAndPassword it means passwords did not match.
@@ -82,7 +88,7 @@ func (m *merchant) Authenticate() (bool, error) {
 	return true, nil
 }
 
-func (m *merchant) InsertLogin(username, password string) error {
+func (m *merchant) InsertLogin() error {
 	conn, err := db.NewConnection("merchantdb")
 
 	if err != nil {
@@ -96,7 +102,7 @@ func (m *merchant) InsertLogin(username, password string) error {
 		})
 	}
 
-	_, err = conn.PrepareAndExecute(`INSERT INTO login(username, password) VALUES(?, ?)`, []interface{}{username, password})
+	_, err = conn.PrepareAndExecute(`INSERT INTO login(username, password) VALUES(?, ?)`, []interface{}{m.username, m.password})
 
 	if err != nil {
 		log.Println(map[string]string{

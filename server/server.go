@@ -16,11 +16,8 @@ const (
 )
 
 var (
-	conn     net.Conn
 	reader   *bufio.Reader
 	writer   *bufio.Writer
-	response map[string]interface{}
-	listener net.Listener
 )
 
 func Start() {
@@ -36,7 +33,7 @@ func Start() {
 		return
 	}
 
-	fmt.Printf("Successfully started merchantServer server; Listening on %s:%s\n", ip, port)
+	fmt.Printf("Successfully started auth server; Listening on %s:%s\n", ip, port)
 
 	requestBytes := make([]byte, 1024)
 

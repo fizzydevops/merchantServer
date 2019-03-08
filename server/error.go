@@ -5,10 +5,10 @@ import (
 	"strings"
 )
 
-type InvalidAuthRequest struct {
+type InvalidAuthRequestError struct {
 	missingItems []string
 }
 
-func (e *InvalidAuthRequest) Error() string {
-	return fmt.Sprintf("Insufficient data sent in request: %s", strings.Join(e.missingItems, ", "))
+func (e *InvalidAuthRequestError) Error() string {
+	return fmt.Sprintf("Insufficient data sent in request: %s", strings.Join(e.missingItems, ","))
 }

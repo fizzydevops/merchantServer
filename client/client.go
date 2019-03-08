@@ -84,12 +84,12 @@ func (mc *merchantClient) Send(data map[string]interface{}) error {
 func (mc *merchantClient) Read() ([]byte, error) {
 	responseBytes := make([]byte, 1024)
 
-	_, err := mc.conn.Read(responseBytes)
+	len, err := mc.conn.Read(responseBytes)
 
 	if err != nil {
 		return nil, err
 	}
 
 
-	return responseBytes, err
+	return responseBytes[:len], err
 }

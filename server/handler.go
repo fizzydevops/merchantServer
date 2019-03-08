@@ -1,8 +1,10 @@
 package server
 
 import (
+	"encoding/base64"
 	"github.com/Auth/token"
 	"github.com/auth/merchant"
+	"log"
 )
 
 func merchantHandler(data map[string]interface{}) {
@@ -17,7 +19,11 @@ func merchantHandler(data map[string]interface{}) {
 		errMsgs = append(errMsgs, "Username cannot be zero value.")
 	}
 
-	password, ok := data["password"].([]byte)
+	password, err := base64.StdEncoding.DecodeString(data["password"].(string))
+
+	if err != nil {
+		log.Println(err.Error())
+	}
 
 	if !ok {
 		errMsgs = append(errMsgs, "No password provided in request.")
@@ -26,13 +32,14 @@ func merchantHandler(data map[string]interface{}) {
 	}
 
 	if errMsgs != nil {
-		err := InvalidAuthRequest{missingItems: errMsgs}.Error()
-		logServerError("Failed to authenticate merchant credentials.", "merchantHandler", err)
-		writeResponse(map[string]interface{}{"status":  "error", "message": "Insufficient data sent in request.", "error":  err})
+		err := InvalidAuthRequestError{missingItems: errMsgs}
+		logServerError("Failed to authenticate merchant credentials.", "merchantHandler", err.Error())
+		writeResponse(map[string]interface{}{"status":  "error", "message": "Insufficient data sent in request.", "error":  err.Error()})
 		return
 	}
 
 	m := merchant.New(username, password)
+
 	authenticated, err := m.Authenticate()
 
 	if err != nil {

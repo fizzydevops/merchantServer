@@ -3,11 +3,13 @@ package client_test
 import (
 	"encoding/json"
 	"github.com/auth/client"
+	"golang.org/x/crypto/bcrypt"
+	"log"
 	"testing"
 )
 
 func TestNewMerchantClient(t *testing.T) {
-	_, err := client.NewMerchantClient()
+	_, err := client.New()
 
 	if err != nil {
 		t.Error(err.Error())
@@ -16,21 +18,20 @@ func TestNewMerchantClient(t *testing.T) {
 }
 
 func TestMerchantClient_SendMessage(t *testing.T) {
-	c, err := client.NewMerchantClient()
+	c, err := client.New()
 
 	if err != nil {
 		t.Error(err.Error())
 		t.FailNow()
 	}
 
-	data := map[string]interface{}{
-		"name":     "Ryan Claude Fox",
-		"username": "fizzyFox101",
-	}
+	username := "rfoxinc"
+	password, err := bcrypt.GenerateFromPassword([]byte("password123"),bcrypt.MinCost)
 
-	jsonBytes, err := json.Marshal(data)
-
-	err = c.SendMessage(jsonBytes)
+	err = c.Send(map[string]interface{}{
+		"username": username,
+		"password": password,
+	})
 
 	if err != nil {
 		t.Error(err.Error())
@@ -39,26 +40,24 @@ func TestMerchantClient_SendMessage(t *testing.T) {
 }
 
 func TestMerchantClient_ReadMessage(t *testing.T) {
-	c, err := client.NewMerchantClient()
+	c, err := client.New()
 
 	if err != nil {
 		t.Error(err.Error())
 		t.FailNow()
 	}
 
-	data := map[string]interface{}{
-		"name":     "Ryan Claude Fox",
-		"username": "fizzyFox101",
-	}
-
-	jsonBytes, err := json.Marshal(data)
+	username := "test"
 
 	if err != nil {
 		t.Error(err.Error())
 		t.FailNow()
 	}
 
-	err = c.SendMessage(jsonBytes)
+	err = c.Send(map[string]interface{}{
+		"username": username,
+		"password": []byte("testing123"),
+	})
 
 	if err != nil {
 		t.Error(err.Error())
@@ -66,7 +65,7 @@ func TestMerchantClient_ReadMessage(t *testing.T) {
 	}
 
 	// Read response from server
-	responseBytes, err := c.ReadMessage()
+	responseBytes, err := c.Read()
 
 	if err != nil {
 		t.Error(err.Error())
@@ -82,9 +81,6 @@ func TestMerchantClient_ReadMessage(t *testing.T) {
 		t.FailNow()
 	}
 
-	if val := response["status"]; val == "Error" {
-		t.Error("Failed to send a successful message")
-		t.FailNow()
-	}
+	log.Println(response)
 
 }
