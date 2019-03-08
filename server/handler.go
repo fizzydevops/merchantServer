@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/base64"
-	"github.com/Auth/token"
 	"github.com/auth/merchant"
 	"log"
 )
@@ -52,8 +51,7 @@ func merchantHandler(data map[string]interface{}) {
 
 	// If authenticated we are going to now get a token for the account.
 	// makes a token valid for 60 minutes.
-	t := token.New(username)
-	tokenStr, err := t.GenerateToken()
+	token, err := GenerateToken(username)
 
 	if err != nil {
 		logServerError("Failed to generate a token", "merchantHandler", err.Error())
@@ -63,6 +61,6 @@ func merchantHandler(data map[string]interface{}) {
 		"status":   "success",
 		"message":  "Successfully authenticated.",
 		"username": username,
-		"token":    tokenStr,
+		"token":    token,
 	})
 }
