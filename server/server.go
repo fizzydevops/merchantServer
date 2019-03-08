@@ -64,7 +64,7 @@ func Start() {
 			continue
 		}
 
-		merchantHandler(data)
+		go merchantHandler(data)
 
 	} // End of infinite for loop
 

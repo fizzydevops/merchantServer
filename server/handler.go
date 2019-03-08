@@ -4,9 +4,41 @@ import (
 	"encoding/base64"
 	"github.com/auth/merchant"
 	"log"
+	"strings"
 )
 
+// merchantHandler will either validate credentials and send back a token or just validate a token.
 func merchantHandler(data map[string]interface{}) {
+
+	reqType, ok := data["type"].(string)
+	var err error
+
+	if !ok {
+		err = &InsufficientDataError{[]string{"No type provided in request."}}
+		logServerError("Invalid request.", "merchantHandler", err.Error())
+		writeResponse(map[string]interface{}{"status": "error", "message": "Insufficient data sent in request", "error": err.Error()})
+		return
+	} else if strings.ToLower(reqType) != "auth" || strings.ToLower(reqType) != "validate" {
+		err = &InvalidRequestTypeError{reqType:reqType}
+		logServerError("Invalid request.", "merchantHandler", err.Error())
+		writeResponse(map[string]interface{}{"status": "error", "message": "Invalid type.", "error": err.Error()})
+		return
+	}
+
+	if strings.ToLower(reqType) == "auth" {
+		authenticateMerchant(data)
+	} else {
+		validateMerchant(data)
+	}
+}
+
+// validateMerchant validates if the incoming request token is valid for use.
+func validateMerchant(data map[string]interface{}) {
+
+}
+
+// authenticateMerchant handles with authenticating user credentials and if successfully authenticated, grant a jwt token.
+func authenticateMerchant(data map[string]interface{}) {
 	// Validate incoming request
 	var errMsgs []string
 
@@ -31,7 +63,7 @@ func merchantHandler(data map[string]interface{}) {
 	}
 
 	if errMsgs != nil {
-		err := InvalidAuthRequestError{missingItems: errMsgs}
+		err := &InsufficientDataError{missingItems: errMsgs}
 		logServerError("Failed to authenticate merchant credentials.", "merchantHandler", err.Error())
 		writeResponse(map[string]interface{}{"status":  "error", "message": "Insufficient data sent in request.", "error":  err.Error()})
 		return
