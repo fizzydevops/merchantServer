@@ -103,9 +103,7 @@ func authenticateMerchant(data map[string]interface{}) {
 		return
 	}
 
-	m := merchant.New(username, passwordBytes)
-
-	authenticated, err := m.Authenticate()
+	authenticated, err := merchant.Authenticate(username, passwordBytes)
 
 	if err != nil {
 		logServerError("Failed to authenticate merchant credentials.", "authenticateMerchant", err.Error())

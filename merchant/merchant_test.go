@@ -15,8 +15,7 @@ func TestMerchant_InsertLogin(t *testing.T) {
 		t.FailNow()
 	}
 
-	m := merchant.New(username, password)
-	err = m.InsertLogin()
+	err = merchant.InsertLogin(username, password)
 
 	if err != nil {
 		t.Error(err.Error())
@@ -26,9 +25,7 @@ func TestMerchant_InsertLogin(t *testing.T) {
 
 func TestMerchant_Authenticate(t *testing.T) {
 	username := "test"
-
-	m := merchant.New(username, []byte("testing123"))
-	authenticated, err := m.Authenticate()
+	authenticated, err := merchant.Authenticate(username, []byte("testing123"))
 
 	if err != nil {
 		t.Error(err.Error())

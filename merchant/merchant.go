@@ -1,7 +1,6 @@
 package merchant
 
 import (
-	"errors"
 	"github.com/Auth/db"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -45,8 +44,8 @@ func (m *merchant) setToken(token string) {
 }
 
 // Authenticate connect to the database to authenticate merchant credentials
-func (m *merchant) Authenticate() (bool, error) {
-	conn, err := db.NewConnection("merchantdb")
+func Authenticate(username string, password []byte) (bool, error) {
+	conn, err := db.New("merchantdb")
 
 	if err != nil {
 		log.Println(map[string]string{
@@ -60,7 +59,7 @@ func (m *merchant) Authenticate() (bool, error) {
 		return false, err
 	}
 
-	results, err := conn.QueryAndScan(`SELECT password FROM login WHERE username = ? `, []interface{}{m.username})
+	results, err := conn.QueryAndScan(`SELECT password FROM login WHERE username = ? `, []interface{}{username})
 
 	if err != nil {
 		log.Println(map[string]string{
@@ -74,11 +73,11 @@ func (m *merchant) Authenticate() (bool, error) {
 	}
 
 	if len(results) == 0 {
-		err = errors.New("User not found.")
+		err = &UsernameNotFoundError{username:username}
 		return false, err
 	}
 
-	err = bcrypt.CompareHashAndPassword(results["password"].([]byte), m.password)
+	err = bcrypt.CompareHashAndPassword(results["password"].([]byte), password)
 
 	// If err is returned from bcrypt.CompareHashAndPassword it means passwords did not match.
 	if err != nil {
@@ -88,8 +87,8 @@ func (m *merchant) Authenticate() (bool, error) {
 	return true, nil
 }
 
-func (m *merchant) InsertLogin() error {
-	conn, err := db.NewConnection("merchantdb")
+func InsertLogin(username string, password []byte) error {
+	conn, err := db.New("merchantdb")
 
 	if err != nil {
 		log.Println(map[string]string{
@@ -102,12 +101,13 @@ func (m *merchant) InsertLogin() error {
 		})
 	}
 
-	_, err = conn.PrepareAndExecute(`INSERT INTO login(username, password) VALUES(?, ?)`, []interface{}{m.username, m.password})
+	_, err = conn.PrepareAndExecute(`INSERT INTO login(username, password) VALUES(?, ?)`, []interface{}{username, password})
 
 	if err != nil {
 		log.Println(map[string]string{
 			"status":   "error",
 			"message":  "Failed to insert new log in.",
+			"database": "merchantdb",
 			"package":  "merchant",
 			"function": "InsertLogin",
 			"error":    err.Error(),

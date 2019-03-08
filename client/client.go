@@ -81,7 +81,7 @@ func (mc *merchantClient) Send(data map[string]interface{}) error {
 	return nil
 }
 
-func (mc *merchantClient) Read() ([]byte, error) {
+func (mc *merchantClient) Read() (map[string]interface{}, error) {
 	responseBytes := make([]byte, 1024)
 
 	len, err := mc.conn.Read(responseBytes)
@@ -90,5 +90,9 @@ func (mc *merchantClient) Read() ([]byte, error) {
 		return nil, err
 	}
 
-	return responseBytes[:len], err
+	var response map[string]interface{}
+
+	err = json.Unmarshal(responseBytes[:len], &response)
+
+	return response, err
 }

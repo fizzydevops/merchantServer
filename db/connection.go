@@ -17,7 +17,7 @@ type db struct {
 }
 
 // NewConnection establishes a new connection with the database provided.
-func NewConnection(database string) (*db, error) {
+func New(database string) (*db, error) {
 	credentials, err := getDatabaseCredentials()
 
 	if err != nil {

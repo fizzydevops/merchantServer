@@ -6,7 +6,7 @@ import (
 )
 
 func TestNewConnection(t *testing.T) {
-	_, err := db.NewConnection("merchantdb")
+	_, err := db.New("merchantdb")
 
 	if err != nil {
 		t.Error(err.Error())
