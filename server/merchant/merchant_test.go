@@ -1,7 +1,7 @@
 package merchant_test
 
 import (
-	"github.com/auth/merchant"
+	"github.com/auth/server/merchanterchant"
 	"golang.org/x/crypto/bcrypt"
 	"testing"
 )

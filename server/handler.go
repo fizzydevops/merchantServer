@@ -2,7 +2,7 @@ package server
 
 import (
 	"encoding/base64"
-	"github.com/auth/merchant"
+	"github.com/auth/server/merchant"
 	"strings"
 )
 

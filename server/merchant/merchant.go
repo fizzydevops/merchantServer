@@ -91,7 +91,7 @@ func InsertLogin(username string, password []byte) error {
 	conn, err := db.New("merchantdb")
 
 	if err != nil {
-		log.Println(map[string]string{
+		log.Println(map[string]interface{}{
 			"status":   "error",
 			"message":  "Failed to connect to database.",
 			"database": "merchantdb",
