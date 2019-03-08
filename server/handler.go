@@ -13,12 +13,24 @@ func merchantHandler(data map[string]interface{}) {
 
 	if !ok {
 		err = &InsufficientDataError{[]string{"No type provided in request."}}
-		logServerError("Invalid request.", "merchantHandler", err.Error())
+		logServerError(map[string]interface{}{
+			"file": "handler.go",
+			"package": "server",
+			"function": "merchantHandler",
+			"message": "Invalid request.",
+			"error": err.Error(),
+		})
 		writeResponse(map[string]interface{}{"status": "error", "message": "Insufficient data sent in request", "error": err.Error()})
 		return
 	} else if strings.ToLower(reqType) != "auth" || strings.ToLower(reqType) != "validate" {
 		err = &InvalidRequestTypeError{reqType: reqType}
-		logServerError("Invalid request.", "merchantHandler", err.Error())
+		logServerError(map[string]interface{}{
+			"file": "handler.go",
+			"package": "server",
+			"function": "merchantHandler",
+			"message": "Invalid request.",
+			"error": err.Error(),
+		})
 		writeResponse(map[string]interface{}{"status": "error", "message": "Invalid type.", "error": err.Error()})
 		return
 	}
@@ -52,7 +64,13 @@ func validateToken(data map[string]interface{}) {
 
 	if errMsgs != nil {
 		err := &InsufficientDataError{missingItems: errMsgs}
-		logServerError("Failed to authenticate merchant credentials.", "validateToken", err.Error())
+		logServerError(map[string]interface{}{
+			"file": "handler.go",
+			"package": "server",
+			"function": "validateToken",
+			"message": "Failed to authenticate merchant credentials.",
+			"error": err.Error(),
+		})
 		writeResponse(map[string]interface{}{"status": "error", "message": "Insufficient data sent in request.", "error": err.Error()})
 		return
 	}
@@ -60,7 +78,13 @@ func validateToken(data map[string]interface{}) {
 	valid, err := ValidateToken(token, username)
 
 	if err != nil {
-		logServerError("Failed to validate token.", "validateToken", err.Error())
+		logServerError(map[string]interface{}{
+			"file": "handler.go",
+			"package": "server",
+			"function": "validateToken",
+			"message": "Failed to validate token.",
+			"error": err.Error(),
+		})
 		writeResponse(map[string]interface{}{"status": "error", "message": "Failed to authenticate token.", "error": err.Error()})
 	} else if !valid {
 		writeResponse(map[string]interface{}{"status": "error", "message": "Authentication Failure. Token expired please request a new one."})
@@ -98,7 +122,13 @@ func authenticateMerchant(data map[string]interface{}) {
 
 	if errMsgs != nil {
 		err := &InsufficientDataError{missingItems: errMsgs}
-		logServerError("Failed to authenticate merchant credentials.", "authenticateMerchant", err.Error())
+		logServerError(map[string]interface{}{
+			"file": "handler.go",
+			"package": "server",
+			"function": "authenticateMerchant",
+			"message": "Failed to validate token.",
+			"error": err.Error(),
+		})
 		writeResponse(map[string]interface{}{"status": "error", "message": "Insufficient data sent in request.", "error": err.Error()})
 		return
 	}
@@ -106,8 +136,15 @@ func authenticateMerchant(data map[string]interface{}) {
 	authenticated, err := merchant.Authenticate(username, passwordBytes)
 
 	if err != nil {
-		logServerError("Failed to authenticate merchant credentials.", "authenticateMerchant", err.Error())
+		logServerError(map[string]interface{}{
+			"file": "handler.go",
+			"package": "server",
+			"function": "authenticateMerchant",
+			"message": "Failed to authenticate merchant credentials.",
+			"error": err.Error(),
+		})
 		writeResponse(map[string]interface{}{"status": "error", "message": "Failed to authenticate merchant credentials."})
+		return
 	} else if !authenticated {
 		writeResponse(map[string]interface{}{"status": "error", "message": "Authentication Failure. Invalid credentials."})
 		return
@@ -118,7 +155,14 @@ func authenticateMerchant(data map[string]interface{}) {
 	token, err := GenerateToken(username)
 
 	if err != nil {
-		logServerError("Failed to generate a token.", "merchantHandler", err.Error())
+		logServerError(map[string]interface{}{
+			"file": "handler.go",
+			"package": "server",
+			"function": "authenticateMerchant",
+			"message": "Failed to generate a token.",
+			"error": err.Error(),
+		})
+		return
 	}
 
 	writeResponse(map[string]interface{}{

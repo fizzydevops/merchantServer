@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net"
 	"strings"
 )
@@ -21,14 +20,18 @@ var (
 )
 
 func Start() {
-	fmt.Println("Starting merchantServer server...")
-
 	listener, err := net.Listen(protocol, ip+":"+port)
 	defer listener.Close()
 
 	// If we fail to start server this is fatal.
 	if err != nil {
-		logServerError("Failed to start merchant server.", "Start", err.Error())
+		logServerError(map[string]interface{}{
+			"file": "server.go",
+			"package": "server",
+			"function": "Start",
+			"message": "Failed to start auth server.",
+			"error": err.Error(),
+		})
 		panic(err.Error())
 		return
 	}
@@ -44,10 +47,15 @@ func Start() {
 		//Read incoming bytes
 		reader = bufio.NewReader(conn)
 
-		fmt.Println("Accepted connection from : ", conn.RemoteAddr())
-
 		if err != nil {
-			logServerError("Failed to accept incoming connection", "Start", err.Error())
+			logServerError(map[string]interface{}{
+				"file": "server.go",
+				"package": "server",
+				"function": "Start",
+				"message": "Failed to accept incoming connection",
+				"error": err.Error(),
+			})
+			continue
 		}
 
 		writer = bufio.NewWriter(conn)
@@ -59,27 +67,23 @@ func Start() {
 		err = json.Unmarshal(requestBytes[:n], &data)
 
 		if err != nil {
-			logServerError("Failed to decode JSON", "Start", err.Error())
+			logServerError(map[string]interface{}{
+				"file": "server.go",
+				"package": "server",
+				"function": "Start",
+				"message": "Failed to Unmarshal JSON.",
+				"error": err.Error(),
+			})
 			writeResponse(map[string]interface{}{"status": "error", "message": "Failed to decode JSON"})
 			continue
 		}
 
+		// Shoot of go routine.
 		go merchantHandler(data)
 
 	} // End of infinite for loop
 
 } //end of Start method.
-
-// logMerchantError is a utility function for logging errors to the server.
-func logServerError(message, function, err string) {
-	log.Println(map[string]string{
-		"status":   "Error",
-		"message":  message,
-		"function": function,
-		"package":  "server",
-		"error":    err,
-	})
-}
 
 // writeResponse is a utility function for writing back a response to the client.
 func writeResponse(data map[string]interface{}) {
@@ -101,6 +105,12 @@ func writeResponse(data map[string]interface{}) {
 	}
 
 	if len(errMsgs) > 0 {
-		logServerError("Failed to write reponse data.", "writeResponse", strings.Join(errMsgs, ", "))
+		logServerError(map[string]interface{}{
+			"file": "server.go",
+			"package": "server",
+			"function": "writeResponse",
+			"message": "Failed to Unmarshal JSON.",
+			"error": strings.Join(errMsgs, ", "),
+		})
 	}
 }
