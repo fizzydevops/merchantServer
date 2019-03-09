@@ -41,7 +41,7 @@ func New(database string) (*db, error) {
 	return &db{conn: conn, database: database}, err
 }
 
-// getDatabaseCredentials retrieves the endpoint and password from aws parameter store.
+// getDatabaseCredentials retrieves the endpoint, username, and password from aws parameter store.
 func getDatabaseCredentials() (map[string]string, error) {
 	session, err := session.NewSession(&aws.Config{
 		Region:      aws.String("us-east-1"),
