@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-// logServerError takes in a map and encodes it to JSON, then puts the log record to the AWS Firehose stream
+// Log takes in a map and encodes it to JSON, then puts the log record to the AWS Firehose stream
 func Log(data map[string]interface{}) {
 	session, err := session.NewSession(&aws.Config{
 		Region:      aws.String("us-east-1"),
