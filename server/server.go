@@ -7,14 +7,31 @@ import (
 	"github.com/auth/logger"
 	"log"
 	"net"
+	"os"
 	"strings"
 )
 
 const (
 	protocol = "tcp"
-	ip       = "0.0.0.0"
-	port     = "5000"
 )
+
+var (
+	ip   string
+	port string
+)
+
+func init() {
+	ip = os.Getenv("AUTH_SERVER_IP")
+	port = os.Getenv("AUTH_SEVER_PORT")
+
+	if ip == "" {
+		ip = "0.0.0.0"
+	}
+
+	if port == "" {
+		port = "5000"
+	}
+}
 
 func Start() {
 	listener, err := net.Listen(protocol, ip+":"+port)
