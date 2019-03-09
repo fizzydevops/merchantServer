@@ -12,7 +12,7 @@ import (
 // merchantHandler will either validate credentials and send back a token or just validate a token.
 func merchantHandler(conn net.Conn, data map[string]interface{}) {
 	writer := bufio.NewWriter(conn)
-
+	defer conn.Close()
 	reqType, ok := data["type"].(string)
 	var err error
 

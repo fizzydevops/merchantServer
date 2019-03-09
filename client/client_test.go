@@ -82,6 +82,7 @@ func TestMerchantClient_Read(t *testing.T) {
 func TestMerchantClient_Read2(t *testing.T) {
 	responseStream := make(chan map[string]interface{})
 
+	// Only doing 100 don't want to open to many connections.
 	for i := 0; i < 100; i++ {
 		go func() {
 			c, err := client.New()
@@ -125,7 +126,7 @@ TEST:
 		select {
 		case val := <-responseStream:
 			log.Printf("Response from server: %v", val)
-		case <-time.After(time.Second * 10):
+		case <-time.After(time.Second):
 			break TEST
 		}
 	}
