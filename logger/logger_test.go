@@ -7,11 +7,11 @@ import (
 
 func TestLog(t *testing.T) {
 	data := map[string]interface{}{
-		"status": "error",
-		"message": "test message",
+		"status":   "error",
+		"message":  "test message",
 		"function": "TestLog",
-		"package": "logger_test",
-		"error": "This is a test.",
+		"package":  "logger_test",
+		"error":    "This is a test.",
 	}
 
 	logger.Log(data)

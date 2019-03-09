@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	host     = os.Getenv("MERCHANTHOST")
-	port     = os.Getenv("MERCHANTPORT")
+	host     = os.Getenv("AUTH_HOST")
+	port     = os.Getenv("AUTH_PORT")
 	protocol = "tcp"
 )
 

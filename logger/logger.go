@@ -20,7 +20,7 @@ func Log(data map[string]interface{}) {
 	if err != nil {
 		log.Println(map[string]interface{}{
 			"message": "Failed to create aws session",
-			"error": err.Error(),
+			"error":   err.Error(),
 		})
 	}
 
@@ -31,7 +31,7 @@ func Log(data map[string]interface{}) {
 	if err != nil {
 		log.Println(map[string]interface{}{
 			"message": "Failed to marshal data.",
-			"error": err.Error(),
+			"error":   err.Error(),
 		})
 	}
 
@@ -47,7 +47,7 @@ func Log(data map[string]interface{}) {
 	if err != nil {
 		log.Println(map[string]interface{}{
 			"message": "Failed to put log record.",
-			"error": err.Error(),
+			"error":   err.Error(),
 		})
 	}
 }
