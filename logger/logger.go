@@ -43,8 +43,6 @@ func Log(data map[string]interface{}) {
 		})
 	}
 
-	logBytes = append(logBytes, []byte("\n")...)
-
 	putRecord := &firehose.PutRecordInput{
 		DeliveryStreamName: aws.String(os.Getenv("AUTH_LOG_STREAM")),
 		Record: &firehose.Record{
