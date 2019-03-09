@@ -77,13 +77,12 @@ func TestMerchantClient_Read(t *testing.T) {
 
 }
 
-// This test is to test the server see if we can send 1000 request to it
+// Testing 10,000 auths and validates.
 func TestMerchantClient_Read2(t *testing.T) {
-	responseStream := make(chan map[string]interface{})
+	validateStream := make(chan map[string]interface{})
+	authenticationStream := make(chan map[string]interface{})
 
-
-
-	// Only doing 100 don't want to open to many connections.
+	// 10,000 validates
 	for i := 0; i < 10000; i++ {
 		c, err := client.New()
 
@@ -117,15 +116,56 @@ func TestMerchantClient_Read2(t *testing.T) {
 				t.Error(err.Error())
 				t.FailNow()
 			}
-			responseStream <- response
+			validateStream <- response
+		}()
+	}
+
+	// 10,000 authentication
+	for i := 0; i < 10000; i++ {
+		c, err := client.New()
+
+		if err != nil {
+			t.Error(err.Error())
+			t.FailNow()
+		}
+
+		go func() {
+			username := "test"
+
+			if err != nil {
+				t.Error(err.Error())
+				t.FailNow()
+			}
+
+			err = c.Send(map[string]interface{}{
+				"type":     "auth",
+				"username": username,
+				"password": []byte("testing123"),
+			})
+
+			if err != nil {
+				t.Error(err.Error())
+				t.FailNow()
+			}
+			// Read response from server
+			response, err := c.Read()
+
+			if err != nil {
+				t.Error(err.Error())
+				t.FailNow()
+			}
+			authenticationStream <- response
 		}()
 	}
 
 TEST:
 	for {
 		select {
-		case val := <-responseStream:
-			log.Printf("Response from server: %v", val)
+		case validateResponse := <-validateStream:
+			log.Printf("Validation response from server: %v", validateResponse)
+
+		case authenticatonResponse := <-authenticationStream:
+			log.Printf("Validation response from server: %v", authenticatonResponse)
 		case <-time.After(time.Second * 3):
 			break TEST
 		}
