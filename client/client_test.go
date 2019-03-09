@@ -78,12 +78,12 @@ func TestMerchantClient_Read(t *testing.T) {
 
 }
 
-// This test is to penitrate the server see if we can send 1000 request to it
+// This test is to test the server see if we can send 1000 request to it
 func TestMerchantClient_Read2(t *testing.T) {
 	responseStream := make(chan map[string]interface{})
 
 	// Only doing 100 don't want to open to many connections.
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 1000; i++ {
 		go func() {
 			c, err := client.New()
 

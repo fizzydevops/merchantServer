@@ -22,13 +22,13 @@ func init() {
 	}
 }
 
-type merchantClient struct {
+type client struct {
 	conn     net.Conn
 	request  map[string]interface{}
 	response map[string]interface{}
 }
 
-func New() (*merchantClient, error) {
+func New() (*client, error) {
 	connPort, err := strconv.Atoi(port)
 
 	if err != nil {
@@ -45,26 +45,26 @@ func New() (*merchantClient, error) {
 		return nil, err
 	}
 
-	return &merchantClient{conn: merchantConnection}, nil
+	return &client{conn: merchantConnection}, nil
 }
 
-func (mc *merchantClient) SetMerchantResponse(response map[string]interface{}) {
-	mc.response = response
+func (c *client) SetMerchantResponse(response map[string]interface{}) {
+	c.response = response
 }
 
-func (mc *merchantClient) Response() map[string]interface{} {
-	return mc.response
+func (c *client) Response() map[string]interface{} {
+	return c.response
 }
 
-func (mc *merchantClient) SetMerchantRequest(request map[string]interface{}) {
-	mc.request = request
+func (c *client) SetMerchantRequest(request map[string]interface{}) {
+	c.request = request
 }
 
-func (mc *merchantClient) Request() map[string]interface{} {
-	return mc.request
+func (c *client) Request() map[string]interface{} {
+	return c.request
 }
 
-func (mc *merchantClient) Send(data map[string]interface{}) error {
+func (c *client) Send(data map[string]interface{}) error {
 
 	requestBytes, err := json.Marshal(data)
 
@@ -72,7 +72,7 @@ func (mc *merchantClient) Send(data map[string]interface{}) error {
 		return err
 	}
 
-	_, err = mc.conn.Write(requestBytes)
+	_, err = c.conn.Write(requestBytes)
 
 	if err != nil {
 		return err
@@ -81,10 +81,10 @@ func (mc *merchantClient) Send(data map[string]interface{}) error {
 	return nil
 }
 
-func (mc *merchantClient) Read() (map[string]interface{}, error) {
+func (c *client) Read() (map[string]interface{}, error) {
 	responseBytes := make([]byte, 1024)
 
-	len, err := mc.conn.Read(responseBytes)
+	len, err := c.conn.Read(responseBytes)
 
 	if err != nil {
 		return nil, err
