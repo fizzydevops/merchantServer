@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/auth/logger"
+	"log"
 	"net"
 	"strings"
 )
@@ -15,11 +16,6 @@ const (
 	port     = "5000"
 )
 
-var (
-	reader *bufio.Reader
-	writer *bufio.Writer
-)
-
 func Start() {
 	listener, err := net.Listen(protocol, ip+":"+port)
 	defer listener.Close()
@@ -27,11 +23,11 @@ func Start() {
 	// If we fail to start server this is fatal.
 	if err != nil {
 		logger.Log(map[string]interface{}{
-			"file": "server.go",
-			"package": "server",
+			"file":     "server.go",
+			"package":  "server",
 			"function": "Start",
-			"message": "Failed to start auth server.",
-			"error": err.Error(),
+			"message":  "Failed to start auth server.",
+			"error":    err.Error(),
 		})
 		panic(err.Error())
 		return
@@ -39,27 +35,28 @@ func Start() {
 
 	fmt.Printf("Successfully started auth server; Listening on %s:%s\n", ip, port)
 
-	requestBytes := make([]byte, 1024)
-
 	for {
 		//Accepts connections on 0.0.0.0:5000
 		conn, err := listener.Accept()
 
+		log.Println("Got a connection from: ", conn.RemoteAddr())
 		//Read incoming bytes
-		reader = bufio.NewReader(conn)
+		reader := bufio.NewReader(conn)
 
 		if err != nil {
 			logger.Log(map[string]interface{}{
-				"file": "server.go",
-				"package": "server",
+				"file":     "server.go",
+				"package":  "server",
 				"function": "Start",
-				"message": "Failed to accept incoming connection",
-				"error": err.Error(),
+				"message":  "Failed to accept incoming connection",
+				"error":    err.Error(),
 			})
 			continue
 		}
 
-		writer = bufio.NewWriter(conn)
+		writer := bufio.NewWriter(conn)
+
+		requestBytes := make([]byte, 1024)
 
 		n, _ := reader.Read(requestBytes)
 
@@ -69,26 +66,26 @@ func Start() {
 
 		if err != nil {
 			logger.Log(map[string]interface{}{
-				"file": "server.go",
-				"package": "server",
+				"file":     "server.go",
+				"package":  "server",
 				"function": "Start",
-				"message": "Failed to Unmarshal JSON.",
-				"error": err.Error(),
+				"message":  "Failed to Unmarshal JSON.",
+				"error":    err.Error(),
 			})
-			writeResponse(map[string]interface{}{"status": "error", "message": "Failed to decode JSON"})
+			writeResponse(writer, map[string]interface{}{"status": "error", "message": "Failed to decode JSON"})
 			continue
 		}
 
 		// Shoot of go routine.
-		go merchantHandler(data)
-
+		go merchantHandler(conn, data)
 	} // End of infinite for loop
 
 } //end of Start method.
 
 // writeResponse is a utility function for writing back a response to the client.
-func writeResponse(data map[string]interface{}) {
+func writeResponse(writer *bufio.Writer, data map[string]interface{}) {
 	var errMsgs []string
+
 	response, err := json.Marshal(data)
 
 	if err != nil {
@@ -107,11 +104,11 @@ func writeResponse(data map[string]interface{}) {
 
 	if len(errMsgs) > 0 {
 		logger.Log(map[string]interface{}{
-			"file": "server.go",
-			"package": "server",
+			"file":     "server.go",
+			"package":  "server",
 			"function": "writeResponse",
-			"message": "Failed to Unmarshal JSON.",
-			"error": strings.Join(errMsgs, ", "),
+			"message":  "Failed to write response.",
+			"error":    strings.Join(errMsgs, ", "),
 		})
 	}
 }

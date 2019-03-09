@@ -58,7 +58,5 @@ func (conn *connection) connect() (net.Conn, error) {
 		return nil, err
 	}
 
-	log.Printf("Successfully created connection..")
-
 	return connection, nil
 }

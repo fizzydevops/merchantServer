@@ -55,10 +55,10 @@ func TestMerchantClient_Read(t *testing.T) {
 	}
 
 	err = c.Send(map[string]interface{}{
-		"type": "validate",
+		"type":     "auth",
 		"username": username,
-		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTIxMDc4OTIsImlhdCI6MTU1MjEwNDI5MiwiaXNzIjoiYXV0aCJ9.LtwpD5-XtlVBqVH9YCTetJLi4BFmZ6DP9vttuU9y9eM",
-		//"password": []byte("testing123"),
+		"token":    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTIxMDc4OTIsImlhdCI6MTU1MjEwNDI5MiwiaXNzIjoiYXV0aCJ9.LtwpD5-XtlVBqVH9YCTetJLi4BFmZ6DP9vttuU9y9eM",
+		"password": []byte("testing123"),
 	})
 
 	if err != nil {
@@ -80,28 +80,28 @@ func TestMerchantClient_Read(t *testing.T) {
 
 // This test is to penitrate the server see if we can send 1000 request to it
 func TestMerchantClient_Read2(t *testing.T) {
-	c, err := client.New()
-
-	if err != nil {
-		t.Error(err.Error())
-		t.FailNow()
-	}
-
-	username := "test"
-
-	if err != nil {
-		t.Error(err.Error())
-		t.FailNow()
-	}
-
 	responseStream := make(chan map[string]interface{})
 
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 100; i++ {
 		go func() {
-			err := c.Send(map[string]interface{}{
+			c, err := client.New()
+
+			if err != nil {
+				t.Error(err.Error())
+				t.FailNow()
+			}
+
+			username := "test"
+
+			if err != nil {
+				t.Error(err.Error())
+				t.FailNow()
+			}
+
+			err = c.Send(map[string]interface{}{
 				"type":     "validate",
 				"username": username,
-				"token":    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTIxMDc4OTIsImlhdCI6MTU1MjEwNDI5MiwiaXNzIjoiYXV0aCJ9.LtwpD5-XtlVBqVH9YCTetJLi4BFmZ6DP9vttuU9y9eM",
+				"token":    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTIxMTE2MDcsImlhdCI6MTU1MjEwODAwNywiaXNzIjoiYXV0aCJ9.7OdUdPObJH6YPCJwodMooeW89ciSnTA4JhdoDdYr40s",
 				//"password": []byte("testing123"),
 			})
 
@@ -120,12 +120,12 @@ func TestMerchantClient_Read2(t *testing.T) {
 		}()
 	}
 
-	TEST:
+TEST:
 	for {
 		select {
-		case val := <- responseStream:
+		case val := <-responseStream:
 			log.Printf("Response from server: %v", val)
-		case <- time.After(time.Second * 3):
+		case <-time.After(time.Second * 10):
 			break TEST
 		}
 	}

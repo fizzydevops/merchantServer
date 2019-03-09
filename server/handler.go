@@ -1,50 +1,55 @@
 package server
 
 import (
+	"bufio"
 	"encoding/base64"
 	"github.com/auth/logger"
 	"github.com/auth/server/merchant"
+	"net"
 	"strings"
 )
 
 // merchantHandler will either validate credentials and send back a token or just validate a token.
-func merchantHandler(data map[string]interface{}) {
+func merchantHandler(conn net.Conn, data map[string]interface{}) {
+	writer := bufio.NewWriter(conn)
+
 	reqType, ok := data["type"].(string)
 	var err error
 
 	if !ok {
 		err = &InsufficientDataError{[]string{"No type provided in request."}}
 		logger.Log(map[string]interface{}{
-			"file": "handler.go",
-			"package": "server",
+			"file":     "handler.go",
+			"package":  "server",
 			"function": "merchantHandler",
-			"message": "Invalid request.",
-			"error": err.Error(),
+			"message":  "Invalid request.",
+			"error":    err.Error(),
 		})
-		writeResponse(map[string]interface{}{"status": "error", "message": "Insufficient data sent in request", "error": err.Error()})
+		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Insufficient data sent in request", "error": err.Error()})
 		return
 	} else if strings.ToLower(reqType) != "auth" && strings.ToLower(reqType) != "validate" {
 		err = &InvalidRequestTypeError{reqType: reqType}
 		logger.Log(map[string]interface{}{
-			"file": "handler.go",
-			"package": "server",
+			"file":     "handler.go",
+			"package":  "server",
 			"function": "merchantHandler",
-			"message": "Invalid request.",
-			"error": err.Error(),
+			"message":  "Invalid request.",
+			"error":    err.Error(),
 		})
-		writeResponse(map[string]interface{}{"status": "error", "message": "Invalid type.", "error": err.Error()})
+		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Invalid type.", "error": err.Error()})
 		return
 	}
 
 	if strings.ToLower(reqType) == "auth" {
-		authenticateMerchant(data)
+		authenticateMerchant(conn, data)
 	} else {
-		validateToken(data)
+		validateToken(conn, data)
 	}
 }
 
 // validateMerchant validates if the incoming request token is valid for use.
-func validateToken(data map[string]interface{}) {
+func validateToken(conn net.Conn, data map[string]interface{}) {
+	writer := bufio.NewWriter(conn)
 	var errMsgs []string
 
 	username, ok := data["username"].(string)
@@ -52,7 +57,7 @@ func validateToken(data map[string]interface{}) {
 	if !ok {
 		errMsgs = append(errMsgs, "No username provided in request.")
 	} else if username == "" {
-		errMsgs = append(errMsgs,"Username cannot be zero value.")
+		errMsgs = append(errMsgs, "Username cannot be zero value.")
 	}
 
 	token, ok := data["token"].(string)
@@ -66,13 +71,13 @@ func validateToken(data map[string]interface{}) {
 	if errMsgs != nil {
 		err := &InsufficientDataError{missingItems: errMsgs}
 		logger.Log(map[string]interface{}{
-			"file": "handler.go",
-			"package": "server",
+			"file":     "handler.go",
+			"package":  "server",
 			"function": "validateToken",
-			"message": "Failed to authenticate merchant credentials.",
-			"error": err.Error(),
+			"message":  "Failed to authenticate merchant credentials.",
+			"error":    err.Error(),
 		})
-		writeResponse(map[string]interface{}{"status": "error", "message": "Insufficient data sent in request.", "error": err.Error()})
+		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Insufficient data sent in request.", "error": err.Error()})
 		return
 	}
 
@@ -80,22 +85,23 @@ func validateToken(data map[string]interface{}) {
 
 	if err != nil {
 		logger.Log(map[string]interface{}{
-			"file": "handler.go",
-			"package": "server",
+			"file":     "handler.go",
+			"package":  "server",
 			"function": "validateToken",
-			"message": "Failed to validate token.",
-			"error": err.Error(),
+			"message":  "Failed to validate token.",
+			"error":    err.Error(),
 		})
-		writeResponse(map[string]interface{}{"status": "error", "message": "Failed to authenticate token.", "error": err.Error()})
+		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Failed to authenticate token.", "error": err.Error()})
 	} else if !valid {
-		writeResponse(map[string]interface{}{"status": "error", "message": "Authentication Failure. Token expired please request a new one."})
+		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Authentication Failure. Token expired please request a new one."})
 	}
 
-	writeResponse(map[string]interface{}{"status": "success", "message": "Successfully authenticated."})
+	writeResponse(writer, map[string]interface{}{"status": "success", "message": "Successfully authenticated."})
 }
 
 // authenticateMerchant handles with authenticating user credentials and if successfully authenticated, grant a jwt token.
-func authenticateMerchant(data map[string]interface{}) {
+func authenticateMerchant(conn net.Conn, data map[string]interface{}) {
+	writer := bufio.NewWriter(conn)
 	// Validate incoming request
 	var errMsgs []string
 
@@ -124,13 +130,13 @@ func authenticateMerchant(data map[string]interface{}) {
 	if errMsgs != nil {
 		err := &InsufficientDataError{missingItems: errMsgs}
 		logger.Log(map[string]interface{}{
-			"file": "handler.go",
-			"package": "server",
+			"file":     "handler.go",
+			"package":  "server",
 			"function": "authenticateMerchant",
-			"message": "Failed to validate token.",
-			"error": err.Error(),
+			"message":  "Failed to validate token.",
+			"error":    err.Error(),
 		})
-		writeResponse(map[string]interface{}{"status": "error", "message": "Insufficient data sent in request.", "error": err.Error()})
+		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Insufficient data sent in request.", "error": err.Error()})
 		return
 	}
 
@@ -138,16 +144,16 @@ func authenticateMerchant(data map[string]interface{}) {
 
 	if err != nil {
 		logger.Log(map[string]interface{}{
-			"file": "handler.go",
-			"package": "server",
+			"file":     "handler.go",
+			"package":  "server",
 			"function": "authenticateMerchant",
-			"message": "Failed to authenticate merchant credentials.",
-			"error": err.Error(),
+			"message":  "Failed to authenticate merchant credentials.",
+			"error":    err.Error(),
 		})
-		writeResponse(map[string]interface{}{"status": "error", "message": "Failed to authenticate merchant credentials."})
+		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Failed to authenticate merchant credentials."})
 		return
 	} else if !authenticated {
-		writeResponse(map[string]interface{}{"status": "error", "message": "Authentication Failure. Invalid credentials."})
+		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Authentication Failure. Invalid credentials."})
 		return
 	}
 
@@ -157,16 +163,16 @@ func authenticateMerchant(data map[string]interface{}) {
 
 	if err != nil {
 		logger.Log(map[string]interface{}{
-			"file": "handler.go",
-			"package": "server",
+			"file":     "handler.go",
+			"package":  "server",
 			"function": "authenticateMerchant",
-			"message": "Failed to generate a token.",
-			"error": err.Error(),
+			"message":  "Failed to generate a token.",
+			"error":    err.Error(),
 		})
 		return
 	}
 
-	writeResponse(map[string]interface{}{
+	writeResponse(writer, map[string]interface{}{
 		"status":   "success",
 		"message":  "Successfully authenticated.",
 		"username": username,
