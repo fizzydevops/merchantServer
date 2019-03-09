@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/auth/logger"
 	"net"
 	"strings"
 )
@@ -25,7 +26,7 @@ func Start() {
 
 	// If we fail to start server this is fatal.
 	if err != nil {
-		logServerError(map[string]interface{}{
+		logger.Log(map[string]interface{}{
 			"file": "server.go",
 			"package": "server",
 			"function": "Start",
@@ -48,7 +49,7 @@ func Start() {
 		reader = bufio.NewReader(conn)
 
 		if err != nil {
-			logServerError(map[string]interface{}{
+			logger.Log(map[string]interface{}{
 				"file": "server.go",
 				"package": "server",
 				"function": "Start",
@@ -67,7 +68,7 @@ func Start() {
 		err = json.Unmarshal(requestBytes[:n], &data)
 
 		if err != nil {
-			logServerError(map[string]interface{}{
+			logger.Log(map[string]interface{}{
 				"file": "server.go",
 				"package": "server",
 				"function": "Start",
@@ -105,7 +106,7 @@ func writeResponse(data map[string]interface{}) {
 	}
 
 	if len(errMsgs) > 0 {
-		logServerError(map[string]interface{}{
+		logger.Log(map[string]interface{}{
 			"file": "server.go",
 			"package": "server",
 			"function": "writeResponse",

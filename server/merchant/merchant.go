@@ -2,8 +2,8 @@ package merchant
 
 import (
 	"github.com/Auth/db"
+	"github.com/auth/logger"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 )
 
 type merchant struct {
@@ -48,7 +48,7 @@ func Authenticate(username string, password []byte) (bool, error) {
 	conn, err := db.New("merchantdb")
 
 	if err != nil {
-		log.Println(map[string]string{
+		logger.Log(map[string]interface{}{
 			"status":   "error",
 			"message":  "Failed to establish database connection.",
 			"database": "merchantdb",
@@ -62,7 +62,7 @@ func Authenticate(username string, password []byte) (bool, error) {
 	results, err := conn.QueryAndScan(`SELECT password FROM login WHERE username = ? `, []interface{}{username})
 
 	if err != nil {
-		log.Println(map[string]string{
+		logger.Log(map[string]interface{}{
 			"status":   "error",
 			"message":  "Failed to query database.",
 			"database": "merchantdb",
@@ -85,34 +85,4 @@ func Authenticate(username string, password []byte) (bool, error) {
 	}
 
 	return true, nil
-}
-
-func InsertLogin(username string, password []byte) error {
-	conn, err := db.New("merchantdb")
-
-	if err != nil {
-		log.Println(map[string]interface{}{
-			"status":   "error",
-			"message":  "Failed to connect to database.",
-			"database": "merchantdb",
-			"function": "InsertLogin",
-			"package":  "merchant",
-			"error":    err.Error(),
-		})
-	}
-
-	_, err = conn.PrepareAndExecute(`INSERT INTO login(username, password) VALUES(?, ?)`, []interface{}{username, password})
-
-	if err != nil {
-		log.Println(map[string]string{
-			"status":   "error",
-			"message":  "Failed to insert new log in.",
-			"database": "merchantdb",
-			"package":  "merchant",
-			"function": "InsertLogin",
-			"error":    err.Error(),
-		})
-	}
-
-	return err
 }

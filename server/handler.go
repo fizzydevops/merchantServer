@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/base64"
+	"github.com/auth/logger"
 	"github.com/auth/server/merchant"
 	"strings"
 )
@@ -13,7 +14,7 @@ func merchantHandler(data map[string]interface{}) {
 
 	if !ok {
 		err = &InsufficientDataError{[]string{"No type provided in request."}}
-		logServerError(map[string]interface{}{
+		logger.Log(map[string]interface{}{
 			"file": "handler.go",
 			"package": "server",
 			"function": "merchantHandler",
@@ -22,9 +23,9 @@ func merchantHandler(data map[string]interface{}) {
 		})
 		writeResponse(map[string]interface{}{"status": "error", "message": "Insufficient data sent in request", "error": err.Error()})
 		return
-	} else if strings.ToLower(reqType) != "auth" || strings.ToLower(reqType) != "validate" {
+	} else if strings.ToLower(reqType) != "auth" && strings.ToLower(reqType) != "validate" {
 		err = &InvalidRequestTypeError{reqType: reqType}
-		logServerError(map[string]interface{}{
+		logger.Log(map[string]interface{}{
 			"file": "handler.go",
 			"package": "server",
 			"function": "merchantHandler",
@@ -64,7 +65,7 @@ func validateToken(data map[string]interface{}) {
 
 	if errMsgs != nil {
 		err := &InsufficientDataError{missingItems: errMsgs}
-		logServerError(map[string]interface{}{
+		logger.Log(map[string]interface{}{
 			"file": "handler.go",
 			"package": "server",
 			"function": "validateToken",
@@ -78,7 +79,7 @@ func validateToken(data map[string]interface{}) {
 	valid, err := ValidateToken(token, username)
 
 	if err != nil {
-		logServerError(map[string]interface{}{
+		logger.Log(map[string]interface{}{
 			"file": "handler.go",
 			"package": "server",
 			"function": "validateToken",
@@ -122,7 +123,7 @@ func authenticateMerchant(data map[string]interface{}) {
 
 	if errMsgs != nil {
 		err := &InsufficientDataError{missingItems: errMsgs}
-		logServerError(map[string]interface{}{
+		logger.Log(map[string]interface{}{
 			"file": "handler.go",
 			"package": "server",
 			"function": "authenticateMerchant",
@@ -136,7 +137,7 @@ func authenticateMerchant(data map[string]interface{}) {
 	authenticated, err := merchant.Authenticate(username, passwordBytes)
 
 	if err != nil {
-		logServerError(map[string]interface{}{
+		logger.Log(map[string]interface{}{
 			"file": "handler.go",
 			"package": "server",
 			"function": "authenticateMerchant",
@@ -155,7 +156,7 @@ func authenticateMerchant(data map[string]interface{}) {
 	token, err := GenerateToken(username)
 
 	if err != nil {
-		logServerError(map[string]interface{}{
+		logger.Log(map[string]interface{}{
 			"file": "handler.go",
 			"package": "server",
 			"function": "authenticateMerchant",
