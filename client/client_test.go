@@ -57,7 +57,6 @@ func TestMerchantClient_Read(t *testing.T) {
 	err = c.Send(map[string]interface{}{
 		"type":     "auth",
 		"username": username,
-		"token":    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTIxMDc4OTIsImlhdCI6MTU1MjEwNDI5MiwiaXNzIjoiYXV0aCJ9.LtwpD5-XtlVBqVH9YCTetJLi4BFmZ6DP9vttuU9y9eM",
 		"password": []byte("testing123"),
 	})
 
@@ -82,16 +81,18 @@ func TestMerchantClient_Read(t *testing.T) {
 func TestMerchantClient_Read2(t *testing.T) {
 	responseStream := make(chan map[string]interface{})
 
+
+
 	// Only doing 100 don't want to open to many connections.
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 10000; i++ {
+		c, err := client.New()
+
+		if err != nil {
+			t.Error(err.Error())
+			t.FailNow()
+		}
+
 		go func() {
-			c, err := client.New()
-
-			if err != nil {
-				t.Error(err.Error())
-				t.FailNow()
-			}
-
 			username := "test"
 
 			if err != nil {
@@ -102,8 +103,7 @@ func TestMerchantClient_Read2(t *testing.T) {
 			err = c.Send(map[string]interface{}{
 				"type":     "validate",
 				"username": username,
-				"token":    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTIxMTE2MDcsImlhdCI6MTU1MjEwODAwNywiaXNzIjoiYXV0aCJ9.7OdUdPObJH6YPCJwodMooeW89ciSnTA4JhdoDdYr40s",
-				//"password": []byte("testing123"),
+				"token":    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTIxNTcxNzIsImlhdCI6MTU1MjE1MzU3MiwiaXNzIjoiYXV0aCJ9.cc5PZuiISimoAOnNWigFRWwVVKCiFCQ_j6WrJC4TK9I",
 			})
 
 			if err != nil {
@@ -126,7 +126,7 @@ TEST:
 		select {
 		case val := <-responseStream:
 			log.Printf("Response from server: %v", val)
-		case <-time.After(time.Second):
+		case <-time.After(time.Second * 3):
 			break TEST
 		}
 	}

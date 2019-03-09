@@ -33,6 +33,8 @@ func init() {
 	}
 }
 
+var connectionCount int
+
 func Start() {
 	listener, err := net.Listen(protocol, ip+":"+port)
 	defer listener.Close()
@@ -56,7 +58,9 @@ func Start() {
 		//Accepts connections on 0.0.0.0:5000
 		conn, err := listener.Accept()
 
-		log.Println("Got a connection from: ", conn.RemoteAddr())
+		//log.Println("Got a connection from: ", conn.RemoteAddr())
+		connectionCount++
+		log.Printf("The connection count is -> %d", connectionCount)
 		//Read incoming bytes
 		reader := bufio.NewReader(conn)
 

@@ -83,6 +83,7 @@ func (c *client) Send(data map[string]interface{}) error {
 
 func (c *client) Read() (map[string]interface{}, error) {
 	responseBytes := make([]byte, 1024)
+	defer c.conn.Close()
 
 	len, err := c.conn.Read(responseBytes)
 
@@ -93,6 +94,7 @@ func (c *client) Read() (map[string]interface{}, error) {
 	var response map[string]interface{}
 
 	err = json.Unmarshal(responseBytes[:len], &response)
+
 
 	return response, err
 }
