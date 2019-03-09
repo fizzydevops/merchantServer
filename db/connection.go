@@ -131,21 +131,6 @@ func (db *db) QueryAndScan(query string, values []interface{}) (map[string]inter
 	return results, err
 }
 
-func BuildParamsString(length int) string {
-
-	paramStr := "("
-
-	for i := 0; i < length; i++ {
-		if i+1 == length {
-			paramStr += "? )"
-		} else {
-			paramStr += "?, "
-		}
-	}
-
-	return paramStr
-}
-
 func (db *db) Close() {
 	err := db.conn.Close()
 
