@@ -95,6 +95,5 @@ func (c *client) Read() (map[string]interface{}, error) {
 
 	err = json.Unmarshal(responseBytes[:len], &response)
 
-
 	return response, err
 }

@@ -15,8 +15,8 @@ const (
 )
 
 var (
-	ip   string
-	port string
+	ip     string
+	port   string
 	logger *log.Logger
 )
 
@@ -113,7 +113,6 @@ func writeResponse(writer *bufio.Writer, data map[string]interface{}) {
 	if err != nil {
 		errMsgs = append(errMsgs, err.Error())
 	}
-
 
 	_, err = writer.Write(response)
 

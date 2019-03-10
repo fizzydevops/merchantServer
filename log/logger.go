@@ -22,19 +22,19 @@ func New() *Logger {
 
 	if err != nil {
 		log.Println(map[string]interface{}{
-			"status": "error",
-			"file": "log.go",
-			"package": "log",
+			"status":   "error",
+			"file":     "log.go",
+			"package":  "log",
 			"function": "Log",
-			"message": "Failed to create aws session",
-			"error":   err.Error(),
+			"message":  "Failed to create aws session",
+			"error":    err.Error(),
 		})
 		return nil
 	}
 
 	client := firehose.New(session)
 
-	return &Logger{client:client}
+	return &Logger{client: client}
 }
 
 // Log takes in a map and encodes it to JSON, then puts the log record to the AWS Firehose stream
@@ -44,12 +44,12 @@ func (logger *Logger) Log(data map[string]interface{}) {
 
 	if err != nil {
 		log.Println(map[string]interface{}{
-			"status": "error",
-			"file": "log.go",
-			"package": "log",
-			"function":"Log",
-			"message": "Failed to marshal data.",
-			"error":   err.Error(),
+			"status":   "error",
+			"file":     "log.go",
+			"package":  "log",
+			"function": "Log",
+			"message":  "Failed to marshal data.",
+			"error":    err.Error(),
 		})
 		return
 	}
@@ -66,12 +66,12 @@ func (logger *Logger) Log(data map[string]interface{}) {
 	// If error failing to put record we will just log the data that was sent in.
 	if err != nil {
 		log.Println(map[string]interface{}{
-			"status": "error",
-			"file": "log.go",
-			"package": "log",
+			"status":   "error",
+			"file":     "log.go",
+			"package":  "log",
 			"function": "Log",
-			"message": "Failed to put log record.",
-			"error":   err.Error(),
+			"message":  "Failed to put log record.",
+			"error":    err.Error(),
 		})
 
 		log.Println(data)

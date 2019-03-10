@@ -2,13 +2,12 @@ package client_test
 
 import (
 	"github.com/auth/client"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"testing"
 	"time"
 )
 
-func TestNewMerchantClient(t *testing.T) {
+func TestNew(t *testing.T) {
 	_, err := client.New()
 
 	if err != nil {
@@ -17,29 +16,7 @@ func TestNewMerchantClient(t *testing.T) {
 	}
 }
 
-func TestMerchantClient_Send(t *testing.T) {
-	c, err := client.New()
-
-	if err != nil {
-		t.Error(err.Error())
-		t.FailNow()
-	}
-
-	username := "rfoxinc"
-	password, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.MinCost)
-
-	err = c.Send(map[string]interface{}{
-		"username": username,
-		"password": password,
-	})
-
-	if err != nil {
-		t.Error(err.Error())
-		t.FailNow()
-	}
-}
-
-func TestMerchantClient_Read(t *testing.T) {
+func TestMerchantSendAndRead(t *testing.T) {
 	c, err := client.New()
 
 	if err != nil {
@@ -78,12 +55,12 @@ func TestMerchantClient_Read(t *testing.T) {
 }
 
 // Testing 10,000 auths and validates.
-func TestMerchantClient_Read2(t *testing.T) {
+func TestMerchantAuthAndValidates(t *testing.T) {
 	validateStream := make(chan map[string]interface{})
 	authenticationStream := make(chan map[string]interface{})
 
 	//// 10,000 validates
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 10000; i++ {
 		c, err := client.New()
 
 		if err != nil {
@@ -121,7 +98,7 @@ func TestMerchantClient_Read2(t *testing.T) {
 	}
 
 	// 10,000 authentication
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 10000; i++ {
 		c, err := client.New()
 
 		if err != nil {
