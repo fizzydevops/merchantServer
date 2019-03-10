@@ -4,17 +4,17 @@ import (
 	"bufio"
 	"encoding/base64"
 	"github.com/auth/server/merchant"
-	"net"
 	"strings"
 )
 
 // merchantHandler will either validate credentials and send back a token or just validate a token.
-func merchantHandler(conn net.Conn, data map[string]interface{}) {
-	writer := bufio.NewWriter(conn)
+func merchantHandler(handlerStruct *handler) {
+	var err error
+	data := handlerStruct.Data
+	writer := handlerStruct.Writer
 
 	reqType, ok := data["type"].(string)
 
-	var err error
 	if !ok {
 		err = &InsufficientDataError{[]string{"No type provided in request."}}
 		logger.Log(map[string]interface{}{
@@ -40,15 +40,14 @@ func merchantHandler(conn net.Conn, data map[string]interface{}) {
 	}
 
 	if strings.ToLower(reqType) == "auth" {
-		authenticateMerchant(conn, data)
+		authenticateMerchant(writer, data)
 	} else {
-		validateToken(conn, data)
+		validateToken(writer, data)
 	}
 }
 
 // validateMerchant validates if the incoming request token is valid for use.
-func validateToken(conn net.Conn, data map[string]interface{}) {
-	writer := bufio.NewWriter(conn)
+func validateToken(writer *bufio.Writer, data map[string]interface{}) {
 	var errMsgs []string
 
 	username, ok := data["username"].(string)
@@ -101,8 +100,7 @@ func validateToken(conn net.Conn, data map[string]interface{}) {
 }
 
 // authenticateMerchant handles with authenticating user credentials and if successfully authenticated, grant a jwt token.
-func authenticateMerchant(conn net.Conn, data map[string]interface{}) {
-	writer := bufio.NewWriter(conn)
+func authenticateMerchant(writer *bufio.Writer, data map[string]interface{}) {
 	// Validate incoming request
 	var errMsgs []string
 

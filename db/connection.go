@@ -20,9 +20,8 @@ type db struct {
 var conn *sql.DB
 var once sync.Once
 
-// NewConnection establishes a new connection with the database provided.
+// New establishes a new connection with the database provided.
 func New(database string) *db {
-
 	once.Do(func() {
 		credentials, err := getDatabaseCredentials()
 

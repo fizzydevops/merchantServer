@@ -3,7 +3,6 @@ package merchant
 import (
 	"github.com/Auth/db"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 )
 
 type merchant struct {
@@ -48,8 +47,6 @@ func Authenticate(username string, password []byte) (bool, error) {
 	conn := db.New("merchantdb")
 
 	results, err := conn.QueryAndScan(`SELECT password FROM login WHERE username = ? `, []interface{}{username})
-
-	log.Println(results)
 
 	if err != nil {
 		return false, err

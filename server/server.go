@@ -39,6 +39,12 @@ func init() {
 	}
 }
 
+
+type handler struct {
+	Data map[string]interface{}
+	Writer *bufio.Writer
+}
+
 func Start() {
 	listener, err := net.Listen(protocol, ip+":"+port)
 	defer listener.Close()
@@ -99,7 +105,7 @@ func Start() {
 		}
 
 		// Shoot of go routine.
-		go merchantHandler(conn, data)
+		go merchantHandler(&handler{Data: data, Writer: writer})
 	} // End of infinite for loop
 
 } //end of Start method.

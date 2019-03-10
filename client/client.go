@@ -65,7 +65,6 @@ func (c *client) Request() map[string]interface{} {
 }
 
 func (c *client) Send(data map[string]interface{}) error {
-
 	requestBytes, err := json.Marshal(data)
 
 	if err != nil {
