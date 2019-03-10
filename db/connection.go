@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ssm"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
+	"sync"
 )
 
 type db struct {
@@ -16,29 +17,36 @@ type db struct {
 	database string
 }
 
+var conn *sql.DB
+var once sync.Once
 // NewConnection establishes a new connection with the database provided.
-func New(database string) (*db, error) {
-	credentials, err := getDatabaseCredentials()
+func New(database string) *db {
 
-	if err != nil {
-		return nil, err
-	}
+	once.Do(func() {
+		credentials, err := getDatabaseCredentials()
 
-	// Try to connect to database with current credentials.
-	conn, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp([%s]:3306)/%s", credentials["/db/merchantdb/sql/username"], credentials["/db/merchantdb/sql/password"], credentials["/db/merchantdb/sql/endpoint"], database))
+		if err != nil {
+			panic(err.Error())
+		}
 
-	if err != nil {
-		return nil, err
-	}
+		// Try to connect to database with current credentials.
+		conn, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp([%s]:3306)/%s", credentials["/db/merchantdb/sql/username"], credentials["/db/merchantdb/sql/password"], credentials["/db/merchantdb/sql/endpoint"], database))
 
-	// Ping to make sure we establish a connection
-	err = conn.Ping()
+		if err != nil {
+			panic(err.Error())
+		}
 
-	if err != nil {
-		return nil, err
-	}
+		// Ping to make sure we establish a connection
+		err = conn.Ping()
 
-	return &db{conn: conn, database: database}, err
+		if err != nil {
+			panic(err.Error())
+		}
+		conn.SetMaxOpenConns(20)
+		conn.SetMaxIdleConns(0)
+	})
+
+	return &db{conn: conn, database: database}
 }
 
 // getDatabaseCredentials retrieves the endpoint, username, and password from aws parameter store.
@@ -51,6 +59,7 @@ func getDatabaseCredentials() (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	svc := ssm.New(session)
 
 	query := &ssm.GetParametersByPathInput{

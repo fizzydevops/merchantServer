@@ -3,7 +3,6 @@ package server
 import (
 	"bufio"
 	"encoding/base64"
-	"github.com/auth/logger"
 	"github.com/auth/server/merchant"
 	"net"
 	"strings"
@@ -12,10 +11,10 @@ import (
 // merchantHandler will either validate credentials and send back a token or just validate a token.
 func merchantHandler(conn net.Conn, data map[string]interface{}) {
 	writer := bufio.NewWriter(conn)
-	defer conn.Close()
-	reqType, ok := data["type"].(string)
-	var err error
 
+	reqType, ok := data["type"].(string)
+
+	var err error
 	if !ok {
 		err = &InsufficientDataError{[]string{"No type provided in request."}}
 		logger.Log(map[string]interface{}{
@@ -92,11 +91,13 @@ func validateToken(conn net.Conn, data map[string]interface{}) {
 			"error":    err.Error(),
 		})
 		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Failed to authenticate token.", "error": err.Error()})
+		return
 	} else if !valid {
 		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Authentication Failure. Token expired please request a new one."})
+		return
 	}
 
-	writeResponse(writer, map[string]interface{}{"status": "success", "message": "Successfully authenticated."})
+	writeResponse(writer, map[string]interface{}{"status": "success", "message": "Successfully validated token."})
 }
 
 // authenticateMerchant handles with authenticating user credentials and if successfully authenticated, grant a jwt token.

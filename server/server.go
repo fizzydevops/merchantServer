@@ -4,8 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/auth/logger"
-	"log"
+	"github.com/auth/log"
 	"net"
 	"os"
 	"strings"
@@ -18,6 +17,7 @@ const (
 var (
 	ip   string
 	port string
+	logger *log.Logger
 )
 
 func init() {
@@ -31,9 +31,13 @@ func init() {
 	if port == "" {
 		port = "5000"
 	}
-}
 
-var connectionCount int
+	logger = log.New()
+
+	if logger == nil {
+		panic("Failed to instantiate logger.")
+	}
+}
 
 func Start() {
 	listener, err := net.Listen(protocol, ip+":"+port)
@@ -58,9 +62,6 @@ func Start() {
 		//Accepts connections on 0.0.0.0:5000
 		conn, err := listener.Accept()
 
-		//log.Println("Got a connection from: ", conn.RemoteAddr())
-		connectionCount++
-		log.Printf("The connection count is -> %d", connectionCount)
 		//Read incoming bytes
 		reader := bufio.NewReader(conn)
 
@@ -112,6 +113,7 @@ func writeResponse(writer *bufio.Writer, data map[string]interface{}) {
 	if err != nil {
 		errMsgs = append(errMsgs, err.Error())
 	}
+
 
 	_, err = writer.Write(response)
 

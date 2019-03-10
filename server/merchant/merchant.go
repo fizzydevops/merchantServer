@@ -2,8 +2,8 @@ package merchant
 
 import (
 	"github.com/Auth/db"
-	"github.com/auth/logger"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 )
 
 type merchant struct {
@@ -45,31 +45,14 @@ func (m *merchant) setToken(token string) {
 
 // Authenticate connect to the database to authenticate merchant credentials
 func Authenticate(username string, password []byte) (bool, error) {
-	conn, err := db.New("merchantdb")
-
-	if err != nil {
-		logger.Log(map[string]interface{}{
-			"status":   "error",
-			"message":  "Failed to establish database connection.",
-			"database": "merchantdb",
-			"function": "Authenticate",
-			"package":  "merchant",
-			"error":    err.Error(),
-		})
-		return false, err
-	}
+	conn := db.New("merchantdb")
 
 	results, err := conn.QueryAndScan(`SELECT password FROM login WHERE username = ? `, []interface{}{username})
 
+	log.Println(results)
+
 	if err != nil {
-		logger.Log(map[string]interface{}{
-			"status":   "error",
-			"message":  "Failed to query database.",
-			"database": "merchantdb",
-			"function": "Authenticate",
-			"package":  "merchant",
-			"error":    err.Error(),
-		})
+		return false, err
 	}
 
 	if len(results) == 0 {

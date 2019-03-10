@@ -82,8 +82,8 @@ func TestMerchantClient_Read2(t *testing.T) {
 	validateStream := make(chan map[string]interface{})
 	authenticationStream := make(chan map[string]interface{})
 
-	// 10,000 validates
-	for i := 0; i < 10000; i++ {
+	//// 10,000 validates
+	for i := 0; i < 1000; i++ {
 		c, err := client.New()
 
 		if err != nil {
@@ -102,7 +102,7 @@ func TestMerchantClient_Read2(t *testing.T) {
 			err = c.Send(map[string]interface{}{
 				"type":     "validate",
 				"username": username,
-				"token":    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTIxNTcxNzIsImlhdCI6MTU1MjE1MzU3MiwiaXNzIjoiYXV0aCJ9.cc5PZuiISimoAOnNWigFRWwVVKCiFCQ_j6WrJC4TK9I",
+				"token":    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTIyNDkzMzAsImlhdCI6MTU1MjI0NTczMCwiaXNzIjoiYXV0aCJ9.63yGYgMZD2OAG4WFU8gcSR1Hqsg3vk3tx88pJaWgwVQ",
 			})
 
 			if err != nil {
@@ -121,7 +121,7 @@ func TestMerchantClient_Read2(t *testing.T) {
 	}
 
 	// 10,000 authentication
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 1000; i++ {
 		c, err := client.New()
 
 		if err != nil {
@@ -158,16 +158,26 @@ func TestMerchantClient_Read2(t *testing.T) {
 		}()
 	}
 
+	var validateSuccessCount int
+	var authenticationSuccessCount int
+
 TEST:
 	for {
 		select {
 		case validateResponse := <-validateStream:
-			log.Printf("Validation response from server: %v", validateResponse)
+			if validateResponse["status"] == "success" {
+				validateSuccessCount++
+			}
 
 		case authenticatonResponse := <-authenticationStream:
-			log.Printf("Validation response from server: %v", authenticatonResponse)
+			if authenticatonResponse["status"] == "success" {
+				authenticationSuccessCount++
+			}
 		case <-time.After(time.Second * 3):
 			break TEST
 		}
 	}
+
+	t.Log("Amount of validate successes: ", validateSuccessCount)
+	t.Log("Amount of authentication successes: ", authenticationSuccessCount)
 }
