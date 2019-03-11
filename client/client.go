@@ -40,13 +40,13 @@ func New() (*client, error) {
 	conn := NewConnection(host, connPort, protocol)
 
 	// Try's establishes connection to server
-	merchantConnection, err := conn.connect()
+	authServerConnection, err := conn.connect()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &client{conn: merchantConnection}, nil
+	return &client{conn: authServerConnection}, nil
 }
 
 func (c *client) SetResponseData(response map[string]interface{}) {
