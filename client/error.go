@@ -17,4 +17,3 @@ type InsufficientDataError struct {
 func (e *InsufficientDataError) Error() string {
 	return fmt.Sprintf("Insufficient data error: %s", e.message)
 }
-

@@ -36,7 +36,7 @@ func TestGenerateToken(t *testing.T) {
 }
 
 // Testing 10,000 auths and validates.
-func TestMerchantAuthAndValidates(t *testing.T) {
+func TestAuthAndValidates(t *testing.T) {
 	validateStream := make(chan map[string]interface{})
 	authenticationStream := make(chan map[string]interface{})
 
