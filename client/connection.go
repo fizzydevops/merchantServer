@@ -1,7 +1,6 @@
 package client
 
 import (
-	"log"
 	"net"
 	"strconv"
 )
@@ -48,13 +47,6 @@ func (conn *connection) connect() (net.Conn, error) {
 	connection, err := net.Dial(conn.protocol, net.JoinHostPort(conn.IP(), strconv.Itoa(conn.Port())))
 
 	if err != nil {
-		log.Println(map[string]interface{}{
-			"status":   "Error",
-			"message":  "Failed to establish server connection",
-			"function": "Connect",
-			"package":  "client",
-			"error":    err.Error(),
-		})
 		return nil, err
 	}
 

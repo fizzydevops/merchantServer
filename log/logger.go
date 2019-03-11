@@ -51,6 +51,7 @@ func (logger *Logger) Log(data map[string]interface{}) {
 			"message":  "Failed to marshal data.",
 			"error":    err.Error(),
 		})
+		log.Println(data)
 		return
 	}
 
@@ -63,7 +64,6 @@ func (logger *Logger) Log(data map[string]interface{}) {
 
 	_, err = logger.client.PutRecord(putRecord)
 
-	// If error failing to put record we will just log the data that was sent in.
 	if err != nil {
 		log.Println(map[string]interface{}{
 			"status":   "error",
