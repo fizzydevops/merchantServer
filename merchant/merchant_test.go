@@ -1,7 +1,7 @@
 package merchant_test
 
 import (
-	"github.com/auth/server/merchant"
+	"github.com/auth/merchant"
 	"testing"
 )
 

@@ -3,7 +3,7 @@ package server
 import (
 	"bufio"
 	"encoding/base64"
-	"github.com/auth/server/merchant"
+	"github.com/auth/merchant"
 	"strings"
 )
 

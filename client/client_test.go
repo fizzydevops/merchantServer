@@ -16,7 +16,7 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func TestMerchantSendAndRead(t *testing.T) {
+func TestAuthSendAndRead(t *testing.T) {
 	c, err := client.New()
 
 	if err != nil {
@@ -55,7 +55,7 @@ func TestMerchantSendAndRead(t *testing.T) {
 }
 
 // Testing 10,000 auths and validates.
-func TestMerchantAuthAndValidates(t *testing.T) {
+func TestAuthAndValidates(t *testing.T) {
 	validateStream := make(chan map[string]interface{})
 	authenticationStream := make(chan map[string]interface{})
 
@@ -79,7 +79,7 @@ func TestMerchantAuthAndValidates(t *testing.T) {
 			err = c.Send(map[string]interface{}{
 				"type":     "validate",
 				"username": username,
-				"token":    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTIyNDkzMzAsImlhdCI6MTU1MjI0NTczMCwiaXNzIjoiYXV0aCJ9.63yGYgMZD2OAG4WFU8gcSR1Hqsg3vk3tx88pJaWgwVQ",
+				"token":    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTIzNDkwMTQsImlhdCI6MTU1MjM0NTQxNCwiaXNzIjoiYXV0aCJ9.j-WmvILcvT3sKbn7fKdnQ-cd-4keL8tgOd6mXHDA3to",
 			})
 
 			if err != nil {

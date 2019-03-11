@@ -41,7 +41,7 @@ func TestMerchantAuthAndValidates(t *testing.T) {
 	authenticationStream := make(chan map[string]interface{})
 
 	//// 10,000 validates
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 10000; i++ {
 		c, err := client.New()
 
 		if err != nil {
@@ -79,7 +79,7 @@ func TestMerchantAuthAndValidates(t *testing.T) {
 	}
 
 	// 10,000 authentication
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 10000; i++ {
 		c, err := client.New()
 
 		if err != nil {

@@ -11,10 +11,9 @@ type merchant struct {
 	token    string
 }
 
-func New(username string, password []byte) *merchant {
+func New(username string) *merchant {
 	return &merchant{
 		username: username,
-		password: password,
 	}
 }
 
