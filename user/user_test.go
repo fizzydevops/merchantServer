@@ -1,14 +1,14 @@
-package merchant_test
+package user_test
 
 import (
-	"github.com/auth/merchant"
+	"auth/user"
 	"testing"
 )
 
 
 func TestMerchant_Authenticate(t *testing.T) {
 	username := "test"
-	authenticated, err := merchant.Authenticate(username, []byte("testing123"))
+	authenticated, err := user.Authenticate(username, []byte("testing123"))
 
 	if err != nil {
 		t.Error(err.Error())

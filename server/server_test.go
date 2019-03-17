@@ -1,8 +1,8 @@
 package server_test
 
 import (
-	"github.com/auth/client"
-	"github.com/auth/server"
+	"auth/client"
+	"auth/server"
 	"log"
 	"testing"
 	"time"

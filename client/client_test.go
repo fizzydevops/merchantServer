@@ -1,7 +1,7 @@
 package client_test
 
 import (
-	"github.com/auth/client"
+	"auth/client"
 	"log"
 	"testing"
 	"time"

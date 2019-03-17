@@ -1,47 +1,47 @@
-package merchant
+package user
 
 import (
-	"github.com/Auth/db"
+	"auth/db"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type merchant struct {
+type user struct {
 	username string
 	password []byte
 	token    string
 }
 
-func New(username string) *merchant {
-	return &merchant{
+func New(username string) *user {
+	return &user{
 		username: username,
 	}
 }
 
-func (m *merchant) Username() string {
-	return m.username
+func (u *user) Username() string {
+	return u.username
 }
 
-func (m *merchant) SetMerchant(username string) {
-	m.username = username
+func (u *user) SetMerchant(username string) {
+	u.username = username
 }
 
-func (m *merchant) Password() []byte {
-	return m.password
+func (u *user) Password() []byte {
+	return u.password
 }
 
-func (m *merchant) SetPassword(password []byte) {
-	m.password = password
+func (u *user) SetPassword(password []byte) {
+	u.password = password
 }
 
-func (m *merchant) Token() string {
-	return m.token
+func (u *user) Token() string {
+	return u.token
 }
 
-func (m *merchant) setToken(token string) {
-	m.token = token
+func (u *user) setToken(token string) {
+	u.token = token
 }
 
-// Authenticate connect to the database to authenticate merchant credentials
+// Authenticate connect to the database to authenticate user credentials
 func Authenticate(username string, password []byte) (bool, error) {
 	conn := db.New("merchantdb")
 

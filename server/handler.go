@@ -3,12 +3,12 @@ package server
 import (
 	"bufio"
 	"encoding/base64"
-	"github.com/auth/merchant"
+	"auth/user"
 	"strings"
 )
 
-// merchantHandler will either validate credentials and send back a token or just validate a token.
-func merchantHandler(handlerStruct *handler) {
+//userHandler will either validate credentials and send back a token or just validate a token.
+func userHandler(handlerStruct *handler) {
 	var err error
 	data := handlerStruct.Data
 	writer := handlerStruct.Writer
@@ -20,7 +20,7 @@ func merchantHandler(handlerStruct *handler) {
 		logger.Log(map[string]interface{}{
 			"file":     "handler.go",
 			"package":  "server",
-			"function": "merchantHandler",
+			"function": "userHandler",
 			"message":  "Invalid request.",
 			"error":    err.Error(),
 		})
@@ -31,7 +31,7 @@ func merchantHandler(handlerStruct *handler) {
 		logger.Log(map[string]interface{}{
 			"file":     "handler.go",
 			"package":  "server",
-			"function": "merchantHandler",
+			"function": "userHandler",
 			"message":  "Invalid request.",
 			"error":    err.Error(),
 		})
@@ -40,13 +40,13 @@ func merchantHandler(handlerStruct *handler) {
 	}
 
 	if strings.ToLower(reqType) == "auth" {
-		authenticateMerchant(writer, data)
+		authenticateUser(writer, data)
 	} else {
 		validateToken(writer, data)
 	}
 }
 
-// validateMerchant validates if the incoming request token is valid for use.
+// validateToken validates if the incoming request token is valid for use.
 func validateToken(writer *bufio.Writer, data map[string]interface{}) {
 	var errMsgs []string
 
@@ -72,7 +72,7 @@ func validateToken(writer *bufio.Writer, data map[string]interface{}) {
 			"file":     "handler.go",
 			"package":  "server",
 			"function": "validateToken",
-			"message":  "Failed to authenticate merchant credentials.",
+			"message":  "Failed to authenticate user credentials.",
 			"error":    err.Error(),
 		})
 		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Insufficient data sent in request.", "error": err.Error()})
@@ -99,8 +99,8 @@ func validateToken(writer *bufio.Writer, data map[string]interface{}) {
 	writeResponse(writer, map[string]interface{}{"status": "success", "message": "Successfully validated token."})
 }
 
-// authenticateMerchant handles with authenticating user credentials and if successfully authenticated, grant a jwt token.
-func authenticateMerchant(writer *bufio.Writer, data map[string]interface{}) {
+// authenticateUser handles with authenticating user credentials and if successfully authenticated, grant a jwt token.
+func authenticateUser(writer *bufio.Writer, data map[string]interface{}) {
 	// Validate incoming request
 	var errMsgs []string
 
@@ -131,7 +131,7 @@ func authenticateMerchant(writer *bufio.Writer, data map[string]interface{}) {
 		logger.Log(map[string]interface{}{
 			"file":     "handler.go",
 			"package":  "server",
-			"function": "authenticateMerchant",
+			"function": "authenticateUser",
 			"message":  "Failed to validate token.",
 			"error":    err.Error(),
 		})
@@ -139,17 +139,17 @@ func authenticateMerchant(writer *bufio.Writer, data map[string]interface{}) {
 		return
 	}
 
-	authenticated, err := merchant.Authenticate(username, passwordBytes)
+	authenticated, err := user.Authenticate(username, passwordBytes)
 
 	if err != nil {
 		logger.Log(map[string]interface{}{
 			"file":     "handler.go",
 			"package":  "server",
-			"function": "authenticateMerchant",
-			"message":  "Failed to authenticate merchant credentials.",
+			"function": "authenticateUser",
+			"message":  "Failed to authenticate user credentials.",
 			"error":    err.Error(),
 		})
-		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Failed to authenticate merchant credentials."})
+		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Failed to authenticate user credentials."})
 		return
 	} else if !authenticated {
 		writeResponse(writer, map[string]interface{}{"status": "error", "message": "Authentication Failure. Invalid credentials."})
@@ -164,7 +164,7 @@ func authenticateMerchant(writer *bufio.Writer, data map[string]interface{}) {
 		logger.Log(map[string]interface{}{
 			"file":     "handler.go",
 			"package":  "server",
-			"function": "authenticateMerchant",
+			"function": "authenticateUser",
 			"message":  "Failed to generate a token.",
 			"error":    err.Error(),
 		})

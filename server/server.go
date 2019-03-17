@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/auth/log"
+	"auth/log"
 	"net"
 	"os"
 	"strings"
@@ -105,7 +105,7 @@ func Start() {
 		}
 
 		// Shoot of go routine.
-		go merchantHandler(&handler{Data: data, Writer: writer})
+		go userHandler(&handler{Data: data, Writer: writer})
 	} // End of infinite for loop
 
 } //end of Start method.

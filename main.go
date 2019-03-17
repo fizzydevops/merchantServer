@@ -1,6 +1,6 @@
 package main
 
-import "github.com/auth/server"
+import "auth/server"
 
 func main() {
 	server.Start()
